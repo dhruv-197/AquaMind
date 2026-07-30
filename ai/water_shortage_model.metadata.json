@@ -1,0 +1,52 @@
+{
+  "model_type": "RandomForestRegressor",
+  "task": "one-day-ahead reservoir storage percentage forecast",
+  "source": "Aqua Dataset\\Reservoir level datase\\Daily_data_of_reservoir_level_of_Central_Water_Commission_(CWC)_Agency_during_March_2024.csv",
+  "weather_source": "Aqua Dataset\\Historical India weather CSV\\POWER_Point_Daily_20100101_20251231_028d61N_077d21E_LST.csv",
+  "weather_join": "Delhi NASA POWER joined by calendar date (climate proxy, not reservoir-station matched)",
+  "source_coverage": {
+    "start": "2024-03-01",
+    "end": "2024-03-30"
+  },
+  "features": [
+    "storage_pct",
+    "day_of_month",
+    "temperature_c",
+    "rainfall_deficit_pct"
+  ],
+  "target": "next_storage_pct",
+  "demand_handling": "daily_demand_mgd adjusts risk score after forecast (not an RF feature)",
+  "temporal_split": {
+    "train_through": "2024-03-21",
+    "validation_through": "2024-03-25",
+    "test_from": "2024-03-26"
+  },
+  "metrics": {
+    "validation": {
+      "mae_percentage_points": 1.1375,
+      "rmse_percentage_points": 2.9524,
+      "rows": 311
+    },
+    "test": {
+      "mae_percentage_points": 1.3125,
+      "rmse_percentage_points": 4.2789,
+      "rows": 367
+    }
+  },
+  "baseline_comparison": {
+    "test_persistence_baseline": {
+      "mae_percentage_points": 0.6687,
+      "rmse_percentage_points": 4.1243,
+      "method": "persistence (predicted next_storage_pct = today's storage_pct)"
+    },
+    "model_beats_persistence_baseline": false,
+    "note": "Model does NOT beat the naive 'no change' baseline on held-out test MAE \u2014 with only ~30 days of source data the 1-day-ahead task is dominated by storage autocorrelation. Treat predicted_risk_score as directionally useful only, not as evidence of learned weather/demand signal, until trained on a longer multi-season dataset."
+  },
+  "limitations": [
+    "Trained from a single March 2024 CWC extract; not a long-term drought model.",
+    "Weather is Delhi NASA POWER joined by date \u2014 a climate proxy, not per-reservoir station weather.",
+    "Demand stress is a transparent post-model adjustment, not learned from metered consumption labels.",
+    "Risk bands are operational display rules based on the forecast, not observed shortage labels.",
+    "Test partition spans only a handful of unique calendar days shared across all reservoirs; treat the reported row count as inflated relative to independent temporal observations."
+  ]
+}

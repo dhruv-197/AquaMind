@@ -1,0 +1,41 @@
+{
+  "model_type": "RandomForestRegressor",
+  "task": "next observed groundwater level depth prediction",
+  "source": "Aqua Dataset\\Quality_controlled_groundwater_levels_over_India\\Input\\1_India_GWLs_2000_2024_wells_within_India.csv",
+  "features": [
+    "prev_observed_depth",
+    "prev2_observed_depth",
+    "depth_change",
+    "Latitude",
+    "Longitude",
+    "Well Depth",
+    "Month_sin",
+    "Month_cos",
+    "Well_Type_Encoded"
+  ],
+  "target": "Water_Level",
+  "temporal_split": {
+    "train_end_year": 2019,
+    "validation_years": "2020-2022",
+    "test_start_year": 2023
+  },
+  "metrics": {
+    "validation": {
+      "mae_meters": 2.488,
+      "rmse_meters": 4.9979,
+      "r2": 0.8251,
+      "rows": 151541
+    },
+    "test": {
+      "mae_meters": 3.1684,
+      "rmse_meters": 9.783,
+      "r2": 0.5176,
+      "rows": 50209
+    }
+  },
+  "limitations": [
+    "Trained on historical CGWB well telemetry; local aquifer-specific conditions vary.",
+    "Weather and rainfall variables are excluded due to lack of spatial matching at well locations.",
+    "Assumes well depth and well type remain constant over time."
+  ]
+}

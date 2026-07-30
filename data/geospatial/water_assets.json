@@ -1,0 +1,3712 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-07-27T09:55:34Z",
+  "source": "AquaMind national water assets catalogue",
+  "counts": {
+    "total": 198,
+    "reservoir": 140,
+    "dam": 10,
+    "groundwater_station": 20,
+    "demand_region": 12,
+    "water_stress_region": 8,
+    "leak_zone": 8
+  },
+  "assets": [
+    {
+      "id": "RSV-IND-001",
+      "type": "reservoir",
+      "name": "Bhakra",
+      "state": "Himachal Pradesh",
+      "lat": 31.41,
+      "lng": 76.433,
+      "capacity_mcm": 9620.0,
+      "current_storage_pct": 66.2,
+      "forecast_storage_pct": 70.8,
+      "risk_level": "healthy",
+      "confidence": 0.83,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-002",
+      "type": "reservoir",
+      "name": "Pong (Maharana Pratap Sagar)",
+      "state": "Himachal Pradesh",
+      "lat": 31.97,
+      "lng": 76.05,
+      "capacity_mcm": 8570.0,
+      "current_storage_pct": 74.6,
+      "forecast_storage_pct": 74.6,
+      "risk_level": "healthy",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-003",
+      "type": "reservoir",
+      "name": "Tehri",
+      "state": "Uttarakhand",
+      "lat": 30.378,
+      "lng": 78.48,
+      "capacity_mcm": 3540.0,
+      "current_storage_pct": 26.2,
+      "forecast_storage_pct": 28.2,
+      "risk_level": "high",
+      "confidence": 0.81,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-004",
+      "type": "reservoir",
+      "name": "Ramganga",
+      "state": "Uttarakhand",
+      "lat": 29.52,
+      "lng": 78.76,
+      "capacity_mcm": 2440.0,
+      "current_storage_pct": 80.0,
+      "forecast_storage_pct": 72.8,
+      "risk_level": "healthy",
+      "confidence": 0.77,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-005",
+      "type": "reservoir",
+      "name": "Rihand",
+      "state": "Uttar Pradesh",
+      "lat": 24.2,
+      "lng": 83.0,
+      "capacity_mcm": 10600.0,
+      "current_storage_pct": 76.6,
+      "forecast_storage_pct": 66.4,
+      "risk_level": "healthy",
+      "confidence": 0.76,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-006",
+      "type": "reservoir",
+      "name": "Matatila",
+      "state": "Uttar Pradesh",
+      "lat": 25.1,
+      "lng": 78.4,
+      "capacity_mcm": 1130.0,
+      "current_storage_pct": 68.3,
+      "forecast_storage_pct": 56.4,
+      "risk_level": "healthy",
+      "confidence": 0.82,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-007",
+      "type": "reservoir",
+      "name": "Gandhi Sagar",
+      "state": "Madhya Pradesh",
+      "lat": 24.7,
+      "lng": 75.63,
+      "capacity_mcm": 7320.0,
+      "current_storage_pct": 24.4,
+      "forecast_storage_pct": 28.5,
+      "risk_level": "high",
+      "confidence": 0.91,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-008",
+      "type": "reservoir",
+      "name": "Indira Sagar",
+      "state": "Madhya Pradesh",
+      "lat": 22.28,
+      "lng": 76.47,
+      "capacity_mcm": 12220.0,
+      "current_storage_pct": 86.8,
+      "forecast_storage_pct": 87.3,
+      "risk_level": "healthy",
+      "confidence": 0.82,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-009",
+      "type": "reservoir",
+      "name": "Omkareshwar",
+      "state": "Madhya Pradesh",
+      "lat": 22.24,
+      "lng": 76.15,
+      "capacity_mcm": 987.0,
+      "current_storage_pct": 70.2,
+      "forecast_storage_pct": 62.2,
+      "risk_level": "healthy",
+      "confidence": 0.74,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-010",
+      "type": "reservoir",
+      "name": "Bargi",
+      "state": "Madhya Pradesh",
+      "lat": 22.94,
+      "lng": 79.92,
+      "capacity_mcm": 3920.0,
+      "current_storage_pct": 22.9,
+      "forecast_storage_pct": 21.8,
+      "risk_level": "high",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-011",
+      "type": "reservoir",
+      "name": "Tawa",
+      "state": "Madhya Pradesh",
+      "lat": 22.56,
+      "lng": 77.97,
+      "capacity_mcm": 2310.0,
+      "current_storage_pct": 73.1,
+      "forecast_storage_pct": 75.6,
+      "risk_level": "healthy",
+      "confidence": 0.84,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-012",
+      "type": "reservoir",
+      "name": "Sardar Sarovar",
+      "state": "Gujarat",
+      "lat": 21.83,
+      "lng": 73.75,
+      "capacity_mcm": 9500.0,
+      "current_storage_pct": 77.2,
+      "forecast_storage_pct": 67.3,
+      "risk_level": "healthy",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-013",
+      "type": "reservoir",
+      "name": "Ukai",
+      "state": "Gujarat",
+      "lat": 21.26,
+      "lng": 73.59,
+      "capacity_mcm": 8511.0,
+      "current_storage_pct": 89.7,
+      "forecast_storage_pct": 91.9,
+      "risk_level": "healthy",
+      "confidence": 0.82,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-014",
+      "type": "reservoir",
+      "name": "Kadana",
+      "state": "Gujarat",
+      "lat": 23.3,
+      "lng": 73.84,
+      "capacity_mcm": 1542.0,
+      "current_storage_pct": 84.1,
+      "forecast_storage_pct": 80.0,
+      "risk_level": "healthy",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-015",
+      "type": "reservoir",
+      "name": "Dharoi",
+      "state": "Gujarat",
+      "lat": 24.0,
+      "lng": 72.85,
+      "capacity_mcm": 908.0,
+      "current_storage_pct": 27.0,
+      "forecast_storage_pct": 26.5,
+      "risk_level": "high",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-016",
+      "type": "reservoir",
+      "name": "Shetrunji",
+      "state": "Gujarat",
+      "lat": 21.47,
+      "lng": 71.65,
+      "capacity_mcm": 307.0,
+      "current_storage_pct": 50.7,
+      "forecast_storage_pct": 48.2,
+      "risk_level": "moderate",
+      "confidence": 0.73,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-017",
+      "type": "reservoir",
+      "name": "Koyna",
+      "state": "Maharashtra",
+      "lat": 17.4,
+      "lng": 73.75,
+      "capacity_mcm": 2797.0,
+      "current_storage_pct": 88.8,
+      "forecast_storage_pct": 76.9,
+      "risk_level": "healthy",
+      "confidence": 0.62,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-018",
+      "type": "reservoir",
+      "name": "Jayakwadi",
+      "state": "Maharashtra",
+      "lat": 19.49,
+      "lng": 75.37,
+      "capacity_mcm": 2909.0,
+      "current_storage_pct": 84.6,
+      "forecast_storage_pct": 80.9,
+      "risk_level": "healthy",
+      "confidence": 0.82,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-019",
+      "type": "reservoir",
+      "name": "Ujjani",
+      "state": "Maharashtra",
+      "lat": 18.07,
+      "lng": 75.12,
+      "capacity_mcm": 3170.0,
+      "current_storage_pct": 47.2,
+      "forecast_storage_pct": 49.2,
+      "risk_level": "moderate",
+      "confidence": 0.69,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-020",
+      "type": "reservoir",
+      "name": "Isapur",
+      "state": "Maharashtra",
+      "lat": 19.76,
+      "lng": 77.42,
+      "capacity_mcm": 1265.0,
+      "current_storage_pct": 32.7,
+      "forecast_storage_pct": 22.3,
+      "risk_level": "high",
+      "confidence": 0.65,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-021",
+      "type": "reservoir",
+      "name": "Upper Vaitarna",
+      "state": "Maharashtra",
+      "lat": 19.7,
+      "lng": 73.5,
+      "capacity_mcm": 331.0,
+      "current_storage_pct": 33.8,
+      "forecast_storage_pct": 26.5,
+      "risk_level": "high",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-022",
+      "type": "reservoir",
+      "name": "Bhatsa",
+      "state": "Maharashtra",
+      "lat": 19.52,
+      "lng": 73.4,
+      "capacity_mcm": 976.0,
+      "current_storage_pct": 85.0,
+      "forecast_storage_pct": 84.8,
+      "risk_level": "healthy",
+      "confidence": 0.62,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-023",
+      "type": "reservoir",
+      "name": "Tansa",
+      "state": "Maharashtra",
+      "lat": 19.56,
+      "lng": 73.25,
+      "capacity_mcm": 184.0,
+      "current_storage_pct": 85.6,
+      "forecast_storage_pct": 86.9,
+      "risk_level": "healthy",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-024",
+      "type": "reservoir",
+      "name": "Vihar",
+      "state": "Maharashtra",
+      "lat": 19.14,
+      "lng": 72.91,
+      "capacity_mcm": 27.0,
+      "current_storage_pct": 31.4,
+      "forecast_storage_pct": 21.7,
+      "risk_level": "high",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-025",
+      "type": "reservoir",
+      "name": "Powai",
+      "state": "Maharashtra",
+      "lat": 19.12,
+      "lng": 72.91,
+      "capacity_mcm": 5.0,
+      "current_storage_pct": 90.7,
+      "forecast_storage_pct": 87.7,
+      "risk_level": "healthy",
+      "confidence": 0.81,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-026",
+      "type": "reservoir",
+      "name": "Mulshi",
+      "state": "Maharashtra",
+      "lat": 18.49,
+      "lng": 73.5,
+      "capacity_mcm": 523.0,
+      "current_storage_pct": 49.0,
+      "forecast_storage_pct": 46.4,
+      "risk_level": "moderate",
+      "confidence": 0.76,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-027",
+      "type": "reservoir",
+      "name": "Panshet",
+      "state": "Maharashtra",
+      "lat": 18.38,
+      "lng": 73.62,
+      "capacity_mcm": 303.0,
+      "current_storage_pct": 36.0,
+      "forecast_storage_pct": 35.3,
+      "risk_level": "high",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-028",
+      "type": "reservoir",
+      "name": "Khadakwasla",
+      "state": "Maharashtra",
+      "lat": 18.4,
+      "lng": 73.77,
+      "capacity_mcm": 56.0,
+      "current_storage_pct": 86.2,
+      "forecast_storage_pct": 76.1,
+      "risk_level": "healthy",
+      "confidence": 0.67,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-029",
+      "type": "reservoir",
+      "name": "Yeldari",
+      "state": "Maharashtra",
+      "lat": 19.72,
+      "lng": 76.73,
+      "capacity_mcm": 934.0,
+      "current_storage_pct": 67.5,
+      "forecast_storage_pct": 62.3,
+      "risk_level": "healthy",
+      "confidence": 0.64,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-030",
+      "type": "reservoir",
+      "name": "Totladoh (Pench)",
+      "state": "Maharashtra",
+      "lat": 21.64,
+      "lng": 79.28,
+      "capacity_mcm": 1241.0,
+      "current_storage_pct": 58.6,
+      "forecast_storage_pct": 57.5,
+      "risk_level": "moderate",
+      "confidence": 0.74,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-031",
+      "type": "reservoir",
+      "name": "Nagarjuna Sagar",
+      "state": "Telangana",
+      "lat": 16.57,
+      "lng": 79.31,
+      "capacity_mcm": 11560.0,
+      "current_storage_pct": 23.5,
+      "forecast_storage_pct": 23.0,
+      "risk_level": "high",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-032",
+      "type": "reservoir",
+      "name": "Sriram Sagar",
+      "state": "Telangana",
+      "lat": 18.97,
+      "lng": 78.34,
+      "capacity_mcm": 3172.0,
+      "current_storage_pct": 18.5,
+      "forecast_storage_pct": 19.9,
+      "risk_level": "critical",
+      "confidence": 0.79,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-033",
+      "type": "reservoir",
+      "name": "Singur",
+      "state": "Telangana",
+      "lat": 17.8,
+      "lng": 77.9,
+      "capacity_mcm": 850.0,
+      "current_storage_pct": 33.6,
+      "forecast_storage_pct": 35.9,
+      "risk_level": "high",
+      "confidence": 0.73,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-034",
+      "type": "reservoir",
+      "name": "Lower Manair",
+      "state": "Telangana",
+      "lat": 18.4,
+      "lng": 79.1,
+      "capacity_mcm": 680.0,
+      "current_storage_pct": 34.8,
+      "forecast_storage_pct": 30.3,
+      "risk_level": "high",
+      "confidence": 0.76,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-035",
+      "type": "reservoir",
+      "name": "Srisailam",
+      "state": "Andhra Pradesh",
+      "lat": 16.08,
+      "lng": 78.9,
+      "capacity_mcm": 8720.0,
+      "current_storage_pct": 75.7,
+      "forecast_storage_pct": 66.4,
+      "risk_level": "healthy",
+      "confidence": 0.67,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-036",
+      "type": "reservoir",
+      "name": "Pulichintala",
+      "state": "Andhra Pradesh",
+      "lat": 16.76,
+      "lng": 80.06,
+      "capacity_mcm": 1296.0,
+      "current_storage_pct": 20.0,
+      "forecast_storage_pct": 9.7,
+      "risk_level": "high",
+      "confidence": 0.82,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-037",
+      "type": "reservoir",
+      "name": "Somasila",
+      "state": "Andhra Pradesh",
+      "lat": 14.5,
+      "lng": 79.3,
+      "capacity_mcm": 2210.0,
+      "current_storage_pct": 31.4,
+      "forecast_storage_pct": 23.3,
+      "risk_level": "high",
+      "confidence": 0.65,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-038",
+      "type": "reservoir",
+      "name": "Yeleru",
+      "state": "Andhra Pradesh",
+      "lat": 17.3,
+      "lng": 82.0,
+      "capacity_mcm": 680.0,
+      "current_storage_pct": 89.1,
+      "forecast_storage_pct": 80.7,
+      "risk_level": "healthy",
+      "confidence": 0.81,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-039",
+      "type": "reservoir",
+      "name": "Tungabhadra",
+      "state": "Karnataka",
+      "lat": 15.27,
+      "lng": 76.33,
+      "capacity_mcm": 3766.0,
+      "current_storage_pct": 18.5,
+      "forecast_storage_pct": 20.5,
+      "risk_level": "critical",
+      "confidence": 0.65,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-040",
+      "type": "reservoir",
+      "name": "Almatti",
+      "state": "Karnataka",
+      "lat": 16.33,
+      "lng": 75.89,
+      "capacity_mcm": 6337.0,
+      "current_storage_pct": 25.2,
+      "forecast_storage_pct": 22.0,
+      "risk_level": "high",
+      "confidence": 0.79,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-041",
+      "type": "reservoir",
+      "name": "Narayanpur",
+      "state": "Karnataka",
+      "lat": 16.21,
+      "lng": 76.22,
+      "capacity_mcm": 1071.0,
+      "current_storage_pct": 51.3,
+      "forecast_storage_pct": 39.7,
+      "risk_level": "moderate",
+      "confidence": 0.66,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-042",
+      "type": "reservoir",
+      "name": "Krishnaraja Sagara",
+      "state": "Karnataka",
+      "lat": 12.42,
+      "lng": 76.57,
+      "capacity_mcm": 1369.0,
+      "current_storage_pct": 76.3,
+      "forecast_storage_pct": 67.4,
+      "risk_level": "healthy",
+      "confidence": 0.74,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-043",
+      "type": "reservoir",
+      "name": "Kabini",
+      "state": "Karnataka",
+      "lat": 11.97,
+      "lng": 76.35,
+      "capacity_mcm": 553.0,
+      "current_storage_pct": 43.5,
+      "forecast_storage_pct": 38.6,
+      "risk_level": "moderate",
+      "confidence": 0.64,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-044",
+      "type": "reservoir",
+      "name": "Harangi",
+      "state": "Karnataka",
+      "lat": 12.49,
+      "lng": 75.91,
+      "capacity_mcm": 235.0,
+      "current_storage_pct": 30.1,
+      "forecast_storage_pct": 21.0,
+      "risk_level": "high",
+      "confidence": 0.89,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-045",
+      "type": "reservoir",
+      "name": "Hemavathi",
+      "state": "Karnataka",
+      "lat": 12.9,
+      "lng": 76.0,
+      "capacity_mcm": 1050.0,
+      "current_storage_pct": 62.3,
+      "forecast_storage_pct": 60.8,
+      "risk_level": "healthy",
+      "confidence": 0.67,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-046",
+      "type": "reservoir",
+      "name": "Bhadra",
+      "state": "Karnataka",
+      "lat": 13.7,
+      "lng": 75.64,
+      "capacity_mcm": 2025.0,
+      "current_storage_pct": 52.5,
+      "forecast_storage_pct": 45.2,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-047",
+      "type": "reservoir",
+      "name": "Linganamakki",
+      "state": "Karnataka",
+      "lat": 14.15,
+      "lng": 74.85,
+      "capacity_mcm": 4417.0,
+      "current_storage_pct": 88.6,
+      "forecast_storage_pct": 89.8,
+      "risk_level": "healthy",
+      "confidence": 0.84,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-048",
+      "type": "reservoir",
+      "name": "Supa",
+      "state": "Karnataka",
+      "lat": 15.31,
+      "lng": 74.4,
+      "capacity_mcm": 4178.0,
+      "current_storage_pct": 35.0,
+      "forecast_storage_pct": 29.3,
+      "risk_level": "high",
+      "confidence": 0.86,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-049",
+      "type": "reservoir",
+      "name": "Vani Vilasa Sagara",
+      "state": "Karnataka",
+      "lat": 14.0,
+      "lng": 76.5,
+      "capacity_mcm": 850.0,
+      "current_storage_pct": 22.6,
+      "forecast_storage_pct": 20.4,
+      "risk_level": "high",
+      "confidence": 0.73,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-050",
+      "type": "reservoir",
+      "name": "Mettur (Stanley)",
+      "state": "Tamil Nadu",
+      "lat": 11.79,
+      "lng": 77.8,
+      "capacity_mcm": 2647.0,
+      "current_storage_pct": 38.3,
+      "forecast_storage_pct": 27.9,
+      "risk_level": "high",
+      "confidence": 0.69,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-051",
+      "type": "reservoir",
+      "name": "Bhavanisagar",
+      "state": "Tamil Nadu",
+      "lat": 11.47,
+      "lng": 77.11,
+      "capacity_mcm": 929.0,
+      "current_storage_pct": 42.0,
+      "forecast_storage_pct": 32.2,
+      "risk_level": "moderate",
+      "confidence": 0.86,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-052",
+      "type": "reservoir",
+      "name": "Vaigai",
+      "state": "Tamil Nadu",
+      "lat": 10.07,
+      "lng": 77.58,
+      "capacity_mcm": 172.0,
+      "current_storage_pct": 88.1,
+      "forecast_storage_pct": 90.9,
+      "risk_level": "healthy",
+      "confidence": 0.83,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-053",
+      "type": "reservoir",
+      "name": "Sathanur",
+      "state": "Tamil Nadu",
+      "lat": 12.18,
+      "lng": 78.85,
+      "capacity_mcm": 230.0,
+      "current_storage_pct": 68.1,
+      "forecast_storage_pct": 64.3,
+      "risk_level": "healthy",
+      "confidence": 0.65,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-054",
+      "type": "reservoir",
+      "name": "Aliyar",
+      "state": "Tamil Nadu",
+      "lat": 10.5,
+      "lng": 76.97,
+      "capacity_mcm": 110.0,
+      "current_storage_pct": 44.9,
+      "forecast_storage_pct": 48.0,
+      "risk_level": "moderate",
+      "confidence": 0.84,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-055",
+      "type": "reservoir",
+      "name": "Periyar (Mullaperiyar)",
+      "state": "Kerala",
+      "lat": 9.53,
+      "lng": 77.15,
+      "capacity_mcm": 443.0,
+      "current_storage_pct": 51.3,
+      "forecast_storage_pct": 40.8,
+      "risk_level": "moderate",
+      "confidence": 0.76,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-056",
+      "type": "reservoir",
+      "name": "Idukki",
+      "state": "Kerala",
+      "lat": 9.84,
+      "lng": 76.97,
+      "capacity_mcm": 1996.0,
+      "current_storage_pct": 56.8,
+      "forecast_storage_pct": 51.0,
+      "risk_level": "moderate",
+      "confidence": 0.87,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-057",
+      "type": "reservoir",
+      "name": "Malampuzha",
+      "state": "Kerala",
+      "lat": 10.83,
+      "lng": 76.68,
+      "capacity_mcm": 226.0,
+      "current_storage_pct": 23.3,
+      "forecast_storage_pct": 16.1,
+      "risk_level": "high",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-058",
+      "type": "reservoir",
+      "name": "Parambikulam",
+      "state": "Kerala",
+      "lat": 10.39,
+      "lng": 76.76,
+      "capacity_mcm": 380.0,
+      "current_storage_pct": 58.1,
+      "forecast_storage_pct": 63.5,
+      "risk_level": "moderate",
+      "confidence": 0.83,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-059",
+      "type": "reservoir",
+      "name": "Hirakud",
+      "state": "Odisha",
+      "lat": 21.52,
+      "lng": 83.87,
+      "capacity_mcm": 5818.0,
+      "current_storage_pct": 58.0,
+      "forecast_storage_pct": 48.5,
+      "risk_level": "moderate",
+      "confidence": 0.87,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-060",
+      "type": "reservoir",
+      "name": "Rengali",
+      "state": "Odisha",
+      "lat": 21.28,
+      "lng": 85.03,
+      "capacity_mcm": 5150.0,
+      "current_storage_pct": 87.4,
+      "forecast_storage_pct": 92.6,
+      "risk_level": "healthy",
+      "confidence": 0.82,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-061",
+      "type": "reservoir",
+      "name": "Upper Kolab",
+      "state": "Odisha",
+      "lat": 18.8,
+      "lng": 82.6,
+      "capacity_mcm": 935.0,
+      "current_storage_pct": 66.3,
+      "forecast_storage_pct": 71.8,
+      "risk_level": "healthy",
+      "confidence": 0.62,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-062",
+      "type": "reservoir",
+      "name": "Indravati",
+      "state": "Odisha",
+      "lat": 19.27,
+      "lng": 82.82,
+      "capacity_mcm": 2300.0,
+      "current_storage_pct": 26.0,
+      "forecast_storage_pct": 23.5,
+      "risk_level": "high",
+      "confidence": 0.82,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-063",
+      "type": "reservoir",
+      "name": "Machkund",
+      "state": "Odisha",
+      "lat": 18.3,
+      "lng": 82.3,
+      "capacity_mcm": 890.0,
+      "current_storage_pct": 65.9,
+      "forecast_storage_pct": 62.1,
+      "risk_level": "healthy",
+      "confidence": 0.89,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-064",
+      "type": "reservoir",
+      "name": "Maithon",
+      "state": "Jharkhand",
+      "lat": 23.78,
+      "lng": 86.81,
+      "capacity_mcm": 1066.0,
+      "current_storage_pct": 27.4,
+      "forecast_storage_pct": 27.4,
+      "risk_level": "high",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-065",
+      "type": "reservoir",
+      "name": "Panchet",
+      "state": "Jharkhand",
+      "lat": 23.68,
+      "lng": 86.75,
+      "capacity_mcm": 1497.0,
+      "current_storage_pct": 72.6,
+      "forecast_storage_pct": 68.7,
+      "risk_level": "healthy",
+      "confidence": 0.87,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-066",
+      "type": "reservoir",
+      "name": "Tenughat",
+      "state": "Jharkhand",
+      "lat": 23.73,
+      "lng": 85.83,
+      "capacity_mcm": 1000.0,
+      "current_storage_pct": 49.8,
+      "forecast_storage_pct": 51.7,
+      "risk_level": "moderate",
+      "confidence": 0.65,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-067",
+      "type": "reservoir",
+      "name": "Chandil",
+      "state": "Jharkhand",
+      "lat": 22.97,
+      "lng": 86.0,
+      "capacity_mcm": 1400.0,
+      "current_storage_pct": 75.7,
+      "forecast_storage_pct": 79.7,
+      "risk_level": "healthy",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-068",
+      "type": "reservoir",
+      "name": "Damodar Valley \u2014 Konar",
+      "state": "Jharkhand",
+      "lat": 23.94,
+      "lng": 85.76,
+      "capacity_mcm": 337.0,
+      "current_storage_pct": 84.5,
+      "forecast_storage_pct": 75.0,
+      "risk_level": "healthy",
+      "confidence": 0.86,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-069",
+      "type": "reservoir",
+      "name": "Kangsabati",
+      "state": "West Bengal",
+      "lat": 22.95,
+      "lng": 86.78,
+      "capacity_mcm": 1036.0,
+      "current_storage_pct": 39.6,
+      "forecast_storage_pct": 28.1,
+      "risk_level": "high",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-070",
+      "type": "reservoir",
+      "name": "Teesta Barrage",
+      "state": "West Bengal",
+      "lat": 26.53,
+      "lng": 88.75,
+      "capacity_mcm": 450.0,
+      "current_storage_pct": 81.4,
+      "forecast_storage_pct": 82.1,
+      "risk_level": "healthy",
+      "confidence": 0.73,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-071",
+      "type": "reservoir",
+      "name": "Mayurakshi",
+      "state": "West Bengal",
+      "lat": 23.97,
+      "lng": 87.35,
+      "capacity_mcm": 548.0,
+      "current_storage_pct": 71.5,
+      "forecast_storage_pct": 74.7,
+      "risk_level": "healthy",
+      "confidence": 0.77,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-072",
+      "type": "reservoir",
+      "name": "Durgapur Barrage",
+      "state": "West Bengal",
+      "lat": 23.48,
+      "lng": 87.31,
+      "capacity_mcm": 200.0,
+      "current_storage_pct": 36.4,
+      "forecast_storage_pct": 39.6,
+      "risk_level": "high",
+      "confidence": 0.65,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-073",
+      "type": "reservoir",
+      "name": "Umiam",
+      "state": "Meghalaya",
+      "lat": 25.65,
+      "lng": 91.88,
+      "capacity_mcm": 140.0,
+      "current_storage_pct": 24.1,
+      "forecast_storage_pct": 19.0,
+      "risk_level": "high",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-074",
+      "type": "reservoir",
+      "name": "Kopili",
+      "state": "Assam",
+      "lat": 25.9,
+      "lng": 92.8,
+      "capacity_mcm": 520.0,
+      "current_storage_pct": 71.3,
+      "forecast_storage_pct": 75.3,
+      "risk_level": "healthy",
+      "confidence": 0.72,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-075",
+      "type": "reservoir",
+      "name": "Karbi Langpi",
+      "state": "Assam",
+      "lat": 26.0,
+      "lng": 92.5,
+      "capacity_mcm": 180.0,
+      "current_storage_pct": 44.0,
+      "forecast_storage_pct": 33.9,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-076",
+      "type": "reservoir",
+      "name": "Loktak",
+      "state": "Manipur",
+      "lat": 24.55,
+      "lng": 93.78,
+      "capacity_mcm": 500.0,
+      "current_storage_pct": 35.8,
+      "forecast_storage_pct": 37.1,
+      "risk_level": "high",
+      "confidence": 0.77,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-077",
+      "type": "reservoir",
+      "name": "Chamera",
+      "state": "Himachal Pradesh",
+      "lat": 32.56,
+      "lng": 76.0,
+      "capacity_mcm": 240.0,
+      "current_storage_pct": 23.4,
+      "forecast_storage_pct": 11.6,
+      "risk_level": "high",
+      "confidence": 0.89,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-078",
+      "type": "reservoir",
+      "name": "Nathpa Jhakri",
+      "state": "Himachal Pradesh",
+      "lat": 31.55,
+      "lng": 77.98,
+      "capacity_mcm": 340.0,
+      "current_storage_pct": 51.5,
+      "forecast_storage_pct": 46.9,
+      "risk_level": "moderate",
+      "confidence": 0.92,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-079",
+      "type": "reservoir",
+      "name": "Ranjit Sagar",
+      "state": "Punjab",
+      "lat": 32.45,
+      "lng": 75.73,
+      "capacity_mcm": 3280.0,
+      "current_storage_pct": 77.2,
+      "forecast_storage_pct": 78.3,
+      "risk_level": "healthy",
+      "confidence": 0.72,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-080",
+      "type": "reservoir",
+      "name": "Thein",
+      "state": "Punjab",
+      "lat": 32.45,
+      "lng": 75.73,
+      "capacity_mcm": 3280.0,
+      "current_storage_pct": 64.9,
+      "forecast_storage_pct": 64.0,
+      "risk_level": "healthy",
+      "confidence": 0.65,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-081",
+      "type": "reservoir",
+      "name": "Gobind Sagar (Bhakra lake)",
+      "state": "Himachal Pradesh",
+      "lat": 31.41,
+      "lng": 76.43,
+      "capacity_mcm": 9620.0,
+      "current_storage_pct": 61.5,
+      "forecast_storage_pct": 62.3,
+      "risk_level": "healthy",
+      "confidence": 0.87,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-082",
+      "type": "reservoir",
+      "name": "Bisalpur",
+      "state": "Rajasthan",
+      "lat": 25.92,
+      "lng": 75.45,
+      "capacity_mcm": 3156.0,
+      "current_storage_pct": 86.2,
+      "forecast_storage_pct": 80.2,
+      "risk_level": "healthy",
+      "confidence": 0.71,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-083",
+      "type": "reservoir",
+      "name": "Rana Pratap Sagar",
+      "state": "Rajasthan",
+      "lat": 24.92,
+      "lng": 75.58,
+      "capacity_mcm": 2900.0,
+      "current_storage_pct": 26.3,
+      "forecast_storage_pct": 15.7,
+      "risk_level": "high",
+      "confidence": 0.77,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-084",
+      "type": "reservoir",
+      "name": "Mahi Bajaj Sagar",
+      "state": "Rajasthan",
+      "lat": 23.56,
+      "lng": 74.4,
+      "capacity_mcm": 2180.0,
+      "current_storage_pct": 61.6,
+      "forecast_storage_pct": 57.6,
+      "risk_level": "healthy",
+      "confidence": 0.63,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-085",
+      "type": "reservoir",
+      "name": "Jawai",
+      "state": "Rajasthan",
+      "lat": 25.1,
+      "lng": 73.15,
+      "capacity_mcm": 300.0,
+      "current_storage_pct": 27.7,
+      "forecast_storage_pct": 31.0,
+      "risk_level": "high",
+      "confidence": 0.71,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-086",
+      "type": "reservoir",
+      "name": "Isarda",
+      "state": "Rajasthan",
+      "lat": 26.3,
+      "lng": 76.2,
+      "capacity_mcm": 280.0,
+      "current_storage_pct": 67.1,
+      "forecast_storage_pct": 64.8,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-087",
+      "type": "reservoir",
+      "name": "Chambal \u2014 Kota Barrage",
+      "state": "Rajasthan",
+      "lat": 25.18,
+      "lng": 75.85,
+      "capacity_mcm": 120.0,
+      "current_storage_pct": 50.2,
+      "forecast_storage_pct": 49.8,
+      "risk_level": "moderate",
+      "confidence": 0.81,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-088",
+      "type": "reservoir",
+      "name": "Gandak Barrage",
+      "state": "Bihar",
+      "lat": 26.7,
+      "lng": 84.9,
+      "capacity_mcm": 180.0,
+      "current_storage_pct": 89.9,
+      "forecast_storage_pct": 92.2,
+      "risk_level": "healthy",
+      "confidence": 0.72,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-089",
+      "type": "reservoir",
+      "name": "Kosi Barrage",
+      "state": "Bihar",
+      "lat": 26.5,
+      "lng": 86.9,
+      "capacity_mcm": 200.0,
+      "current_storage_pct": 20.2,
+      "forecast_storage_pct": 16.5,
+      "risk_level": "high",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-090",
+      "type": "reservoir",
+      "name": "Nagi Dam",
+      "state": "Bihar",
+      "lat": 24.9,
+      "lng": 86.2,
+      "capacity_mcm": 90.0,
+      "current_storage_pct": 32.2,
+      "forecast_storage_pct": 33.7,
+      "risk_level": "high",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-091",
+      "type": "reservoir",
+      "name": "Chandan Dam",
+      "state": "Bihar",
+      "lat": 25.0,
+      "lng": 86.5,
+      "capacity_mcm": 110.0,
+      "current_storage_pct": 48.8,
+      "forecast_storage_pct": 51.9,
+      "risk_level": "moderate",
+      "confidence": 0.64,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-092",
+      "type": "reservoir",
+      "name": "Ban Sagar",
+      "state": "Madhya Pradesh",
+      "lat": 24.2,
+      "lng": 81.3,
+      "capacity_mcm": 5410.0,
+      "current_storage_pct": 86.8,
+      "forecast_storage_pct": 76.3,
+      "risk_level": "healthy",
+      "confidence": 0.91,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-093",
+      "type": "reservoir",
+      "name": "Bansagar",
+      "state": "Madhya Pradesh",
+      "lat": 24.19,
+      "lng": 81.29,
+      "capacity_mcm": 5410.0,
+      "current_storage_pct": 56.3,
+      "forecast_storage_pct": 56.9,
+      "risk_level": "moderate",
+      "confidence": 0.63,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-094",
+      "type": "reservoir",
+      "name": "Rajghat",
+      "state": "Madhya Pradesh",
+      "lat": 24.7,
+      "lng": 78.3,
+      "capacity_mcm": 850.0,
+      "current_storage_pct": 37.6,
+      "forecast_storage_pct": 39.9,
+      "risk_level": "high",
+      "confidence": 0.77,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-095",
+      "type": "reservoir",
+      "name": "Barna",
+      "state": "Madhya Pradesh",
+      "lat": 22.9,
+      "lng": 77.8,
+      "capacity_mcm": 540.0,
+      "current_storage_pct": 32.4,
+      "forecast_storage_pct": 34.5,
+      "risk_level": "high",
+      "confidence": 0.72,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-096",
+      "type": "reservoir",
+      "name": "Kolar Dam",
+      "state": "Madhya Pradesh",
+      "lat": 23.2,
+      "lng": 77.3,
+      "capacity_mcm": 270.0,
+      "current_storage_pct": 74.3,
+      "forecast_storage_pct": 67.2,
+      "risk_level": "healthy",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-097",
+      "type": "reservoir",
+      "name": "Hasdeo Bango",
+      "state": "Chhattisgarh",
+      "lat": 22.6,
+      "lng": 82.6,
+      "capacity_mcm": 3410.0,
+      "current_storage_pct": 86.2,
+      "forecast_storage_pct": 80.1,
+      "risk_level": "healthy",
+      "confidence": 0.86,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-098",
+      "type": "reservoir",
+      "name": "Minimata (Hasdeo)",
+      "state": "Chhattisgarh",
+      "lat": 22.61,
+      "lng": 82.61,
+      "capacity_mcm": 3410.0,
+      "current_storage_pct": 69.5,
+      "forecast_storage_pct": 62.3,
+      "risk_level": "healthy",
+      "confidence": 0.91,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-099",
+      "type": "reservoir",
+      "name": "Ravishankar Sagar",
+      "state": "Chhattisgarh",
+      "lat": 20.7,
+      "lng": 81.9,
+      "capacity_mcm": 910.0,
+      "current_storage_pct": 48.8,
+      "forecast_storage_pct": 40.0,
+      "risk_level": "moderate",
+      "confidence": 0.64,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-100",
+      "type": "reservoir",
+      "name": "Dudhawa",
+      "state": "Chhattisgarh",
+      "lat": 20.3,
+      "lng": 81.0,
+      "capacity_mcm": 290.0,
+      "current_storage_pct": 22.0,
+      "forecast_storage_pct": 27.3,
+      "risk_level": "high",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-101",
+      "type": "reservoir",
+      "name": "Gangrel",
+      "state": "Chhattisgarh",
+      "lat": 20.55,
+      "lng": 81.65,
+      "capacity_mcm": 767.0,
+      "current_storage_pct": 80.6,
+      "forecast_storage_pct": 83.9,
+      "risk_level": "healthy",
+      "confidence": 0.66,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-102",
+      "type": "reservoir",
+      "name": "Mahanadi Reservoir Complex",
+      "state": "Chhattisgarh",
+      "lat": 21.2,
+      "lng": 81.7,
+      "capacity_mcm": 1200.0,
+      "current_storage_pct": 57.1,
+      "forecast_storage_pct": 59.4,
+      "risk_level": "moderate",
+      "confidence": 0.83,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-103",
+      "type": "reservoir",
+      "name": "Balimela",
+      "state": "Odisha",
+      "lat": 18.25,
+      "lng": 82.1,
+      "capacity_mcm": 3610.0,
+      "current_storage_pct": 35.5,
+      "forecast_storage_pct": 35.8,
+      "risk_level": "high",
+      "confidence": 0.81,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-104",
+      "type": "reservoir",
+      "name": "Jalaput",
+      "state": "Odisha",
+      "lat": 18.45,
+      "lng": 82.55,
+      "capacity_mcm": 940.0,
+      "current_storage_pct": 56.9,
+      "forecast_storage_pct": 62.1,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-105",
+      "type": "reservoir",
+      "name": "Salandi",
+      "state": "Odisha",
+      "lat": 21.1,
+      "lng": 86.3,
+      "capacity_mcm": 560.0,
+      "current_storage_pct": 40.6,
+      "forecast_storage_pct": 35.9,
+      "risk_level": "moderate",
+      "confidence": 0.89,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-106",
+      "type": "reservoir",
+      "name": "Subarnarekha (Chandil+)",
+      "state": "Jharkhand",
+      "lat": 22.97,
+      "lng": 86.02,
+      "capacity_mcm": 1960.0,
+      "current_storage_pct": 25.6,
+      "forecast_storage_pct": 22.0,
+      "risk_level": "high",
+      "confidence": 0.81,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-107",
+      "type": "reservoir",
+      "name": "Getalsud",
+      "state": "Jharkhand",
+      "lat": 23.45,
+      "lng": 85.55,
+      "capacity_mcm": 290.0,
+      "current_storage_pct": 88.3,
+      "forecast_storage_pct": 92.0,
+      "risk_level": "healthy",
+      "confidence": 0.71,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-108",
+      "type": "reservoir",
+      "name": "Massanjore",
+      "state": "Jharkhand",
+      "lat": 24.1,
+      "lng": 87.3,
+      "capacity_mcm": 620.0,
+      "current_storage_pct": 42.6,
+      "forecast_storage_pct": 45.6,
+      "risk_level": "moderate",
+      "confidence": 0.83,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-109",
+      "type": "reservoir",
+      "name": "Tilaiya",
+      "state": "Jharkhand",
+      "lat": 24.32,
+      "lng": 85.53,
+      "capacity_mcm": 394.0,
+      "current_storage_pct": 89.2,
+      "forecast_storage_pct": 81.9,
+      "risk_level": "healthy",
+      "confidence": 0.84,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-110",
+      "type": "reservoir",
+      "name": "Konar",
+      "state": "Jharkhand",
+      "lat": 23.94,
+      "lng": 85.77,
+      "capacity_mcm": 337.0,
+      "current_storage_pct": 44.9,
+      "forecast_storage_pct": 45.8,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-111",
+      "type": "reservoir",
+      "name": "Dantiwada",
+      "state": "Gujarat",
+      "lat": 24.33,
+      "lng": 72.33,
+      "capacity_mcm": 907.0,
+      "current_storage_pct": 34.2,
+      "forecast_storage_pct": 35.7,
+      "risk_level": "high",
+      "confidence": 0.67,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-112",
+      "type": "reservoir",
+      "name": "Sipu",
+      "state": "Gujarat",
+      "lat": 24.2,
+      "lng": 72.1,
+      "capacity_mcm": 180.0,
+      "current_storage_pct": 49.4,
+      "forecast_storage_pct": 49.1,
+      "risk_level": "moderate",
+      "confidence": 0.87,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-113",
+      "type": "reservoir",
+      "name": "Watrak",
+      "state": "Gujarat",
+      "lat": 23.2,
+      "lng": 73.3,
+      "capacity_mcm": 220.0,
+      "current_storage_pct": 80.7,
+      "forecast_storage_pct": 72.2,
+      "risk_level": "healthy",
+      "confidence": 0.89,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-114",
+      "type": "reservoir",
+      "name": "Panam",
+      "state": "Gujarat",
+      "lat": 22.9,
+      "lng": 73.7,
+      "capacity_mcm": 500.0,
+      "current_storage_pct": 76.1,
+      "forecast_storage_pct": 78.3,
+      "risk_level": "healthy",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-115",
+      "type": "reservoir",
+      "name": "Karjan",
+      "state": "Gujarat",
+      "lat": 21.8,
+      "lng": 73.5,
+      "capacity_mcm": 630.0,
+      "current_storage_pct": 57.0,
+      "forecast_storage_pct": 47.3,
+      "risk_level": "moderate",
+      "confidence": 0.74,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-116",
+      "type": "reservoir",
+      "name": "Hatnur",
+      "state": "Maharashtra",
+      "lat": 21.1,
+      "lng": 75.9,
+      "capacity_mcm": 380.0,
+      "current_storage_pct": 39.4,
+      "forecast_storage_pct": 37.1,
+      "risk_level": "high",
+      "confidence": 0.89,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-117",
+      "type": "reservoir",
+      "name": "Girna",
+      "state": "Maharashtra",
+      "lat": 20.7,
+      "lng": 74.6,
+      "capacity_mcm": 524.0,
+      "current_storage_pct": 47.5,
+      "forecast_storage_pct": 47.6,
+      "risk_level": "moderate",
+      "confidence": 0.76,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-118",
+      "type": "reservoir",
+      "name": "Nandur Madhmeshwar",
+      "state": "Maharashtra",
+      "lat": 20.0,
+      "lng": 74.1,
+      "capacity_mcm": 280.0,
+      "current_storage_pct": 62.1,
+      "forecast_storage_pct": 65.1,
+      "risk_level": "healthy",
+      "confidence": 0.89,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-119",
+      "type": "reservoir",
+      "name": "Manjara",
+      "state": "Maharashtra",
+      "lat": 18.5,
+      "lng": 76.3,
+      "capacity_mcm": 450.0,
+      "current_storage_pct": 20.6,
+      "forecast_storage_pct": 25.9,
+      "risk_level": "high",
+      "confidence": 0.71,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-120",
+      "type": "reservoir",
+      "name": "Lower Terna",
+      "state": "Maharashtra",
+      "lat": 18.2,
+      "lng": 76.7,
+      "capacity_mcm": 320.0,
+      "current_storage_pct": 67.4,
+      "forecast_storage_pct": 62.0,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-121",
+      "type": "reservoir",
+      "name": "Siddeshwar",
+      "state": "Maharashtra",
+      "lat": 19.7,
+      "lng": 76.9,
+      "capacity_mcm": 250.0,
+      "current_storage_pct": 38.3,
+      "forecast_storage_pct": 38.3,
+      "risk_level": "high",
+      "confidence": 0.86,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-122",
+      "type": "reservoir",
+      "name": "Arunavati",
+      "state": "Maharashtra",
+      "lat": 20.2,
+      "lng": 77.3,
+      "capacity_mcm": 180.0,
+      "current_storage_pct": 73.9,
+      "forecast_storage_pct": 69.3,
+      "risk_level": "healthy",
+      "confidence": 0.73,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-123",
+      "type": "reservoir",
+      "name": "Upper Wardha",
+      "state": "Maharashtra",
+      "lat": 21.3,
+      "lng": 78.2,
+      "capacity_mcm": 564.0,
+      "current_storage_pct": 59.4,
+      "forecast_storage_pct": 53.2,
+      "risk_level": "moderate",
+      "confidence": 0.73,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-124",
+      "type": "reservoir",
+      "name": "Itiadoh",
+      "state": "Maharashtra",
+      "lat": 21.0,
+      "lng": 79.8,
+      "capacity_mcm": 290.0,
+      "current_storage_pct": 33.3,
+      "forecast_storage_pct": 24.2,
+      "risk_level": "high",
+      "confidence": 0.89,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-125",
+      "type": "reservoir",
+      "name": "Gosikhurd",
+      "state": "Maharashtra",
+      "lat": 20.8,
+      "lng": 79.6,
+      "capacity_mcm": 1145.0,
+      "current_storage_pct": 32.4,
+      "forecast_storage_pct": 21.1,
+      "risk_level": "high",
+      "confidence": 0.88,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-126",
+      "type": "reservoir",
+      "name": "Dindi",
+      "state": "Telangana",
+      "lat": 16.8,
+      "lng": 78.9,
+      "capacity_mcm": 280.0,
+      "current_storage_pct": 42.1,
+      "forecast_storage_pct": 40.5,
+      "risk_level": "moderate",
+      "confidence": 0.82,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-127",
+      "type": "reservoir",
+      "name": "Koilsagar",
+      "state": "Telangana",
+      "lat": 16.5,
+      "lng": 77.9,
+      "capacity_mcm": 190.0,
+      "current_storage_pct": 72.0,
+      "forecast_storage_pct": 64.1,
+      "risk_level": "healthy",
+      "confidence": 0.83,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-128",
+      "type": "reservoir",
+      "name": "Wyra",
+      "state": "Telangana",
+      "lat": 17.2,
+      "lng": 80.4,
+      "capacity_mcm": 120.0,
+      "current_storage_pct": 41.0,
+      "forecast_storage_pct": 36.9,
+      "risk_level": "moderate",
+      "confidence": 0.81,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-129",
+      "type": "reservoir",
+      "name": "Kaddam",
+      "state": "Telangana",
+      "lat": 19.1,
+      "lng": 78.8,
+      "capacity_mcm": 340.0,
+      "current_storage_pct": 47.5,
+      "forecast_storage_pct": 49.7,
+      "risk_level": "moderate",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-130",
+      "type": "reservoir",
+      "name": "Nizam Sagar",
+      "state": "Telangana",
+      "lat": 18.2,
+      "lng": 77.9,
+      "capacity_mcm": 724.0,
+      "current_storage_pct": 84.0,
+      "forecast_storage_pct": 89.0,
+      "risk_level": "healthy",
+      "confidence": 0.68,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-131",
+      "type": "reservoir",
+      "name": "Priyadarshini Jurala",
+      "state": "Telangana",
+      "lat": 16.0,
+      "lng": 77.7,
+      "capacity_mcm": 600.0,
+      "current_storage_pct": 84.3,
+      "forecast_storage_pct": 80.4,
+      "risk_level": "healthy",
+      "confidence": 0.83,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-132",
+      "type": "reservoir",
+      "name": "Rajolibanda",
+      "state": "Karnataka",
+      "lat": 16.1,
+      "lng": 77.3,
+      "capacity_mcm": 180.0,
+      "current_storage_pct": 18.2,
+      "forecast_storage_pct": 9.6,
+      "risk_level": "critical",
+      "confidence": 0.77,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-133",
+      "type": "reservoir",
+      "name": "Malaprabha",
+      "state": "Karnataka",
+      "lat": 15.8,
+      "lng": 75.1,
+      "capacity_mcm": 1070.0,
+      "current_storage_pct": 76.4,
+      "forecast_storage_pct": 76.9,
+      "risk_level": "healthy",
+      "confidence": 0.76,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-134",
+      "type": "reservoir",
+      "name": "Ghataprabha",
+      "state": "Karnataka",
+      "lat": 16.2,
+      "lng": 74.5,
+      "capacity_mcm": 1390.0,
+      "current_storage_pct": 48.4,
+      "forecast_storage_pct": 41.1,
+      "risk_level": "moderate",
+      "confidence": 0.93,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-135",
+      "type": "reservoir",
+      "name": "Hidkal",
+      "state": "Karnataka",
+      "lat": 16.15,
+      "lng": 74.64,
+      "capacity_mcm": 1390.0,
+      "current_storage_pct": 51.4,
+      "forecast_storage_pct": 47.2,
+      "risk_level": "moderate",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-136",
+      "type": "reservoir",
+      "name": "Renuka Sagar (Gayathri)",
+      "state": "Karnataka",
+      "lat": 14.2,
+      "lng": 76.3,
+      "capacity_mcm": 240.0,
+      "current_storage_pct": 74.5,
+      "forecast_storage_pct": 62.8,
+      "risk_level": "healthy",
+      "confidence": 0.91,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-137",
+      "type": "reservoir",
+      "name": "Markonahalli",
+      "state": "Karnataka",
+      "lat": 13.0,
+      "lng": 77.1,
+      "capacity_mcm": 90.0,
+      "current_storage_pct": 51.4,
+      "forecast_storage_pct": 40.0,
+      "risk_level": "moderate",
+      "confidence": 0.88,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-138",
+      "type": "reservoir",
+      "name": "Manchanabele",
+      "state": "Karnataka",
+      "lat": 12.8,
+      "lng": 77.3,
+      "capacity_mcm": 35.0,
+      "current_storage_pct": 84.3,
+      "forecast_storage_pct": 79.0,
+      "risk_level": "healthy",
+      "confidence": 0.81,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-C",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-139",
+      "type": "reservoir",
+      "name": "Tippagondanahalli",
+      "state": "Karnataka",
+      "lat": 12.97,
+      "lng": 77.34,
+      "capacity_mcm": 120.0,
+      "current_storage_pct": 19.5,
+      "forecast_storage_pct": 9.2,
+      "risk_level": "critical",
+      "confidence": 0.91,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-A",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "RSV-IND-140",
+      "type": "reservoir",
+      "name": "Hesaraghatta",
+      "state": "Karnataka",
+      "lat": 13.15,
+      "lng": 77.48,
+      "capacity_mcm": 30.0,
+      "current_storage_pct": 72.5,
+      "forecast_storage_pct": 69.9,
+      "risk_level": "healthy",
+      "confidence": 0.72,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "forecast_proxy_id": "RES-B",
+        "country": "IN",
+        "asset_class": "surface_storage"
+      }
+    },
+    {
+      "id": "DAM-IND-001",
+      "type": "dam",
+      "name": "Bhakra Dam",
+      "state": "Himachal Pradesh",
+      "lat": 31.4105,
+      "lng": 76.434,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-001",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-002",
+      "type": "dam",
+      "name": "Tehri Dam",
+      "state": "Uttarakhand",
+      "lat": 30.3775,
+      "lng": 78.4805,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-003",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-003",
+      "type": "dam",
+      "name": "Sardar Sarovar Dam",
+      "state": "Gujarat",
+      "lat": 21.8305,
+      "lng": 73.7495,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-012",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-004",
+      "type": "dam",
+      "name": "Koyna Dam",
+      "state": "Maharashtra",
+      "lat": 17.401,
+      "lng": 73.751,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-017",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-005",
+      "type": "dam",
+      "name": "Nagarjuna Sagar Dam",
+      "state": "Telangana",
+      "lat": 16.575,
+      "lng": 79.312,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-031",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-006",
+      "type": "dam",
+      "name": "Hirakud Dam",
+      "state": "Odisha",
+      "lat": 21.53,
+      "lng": 83.872,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-059",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-007",
+      "type": "dam",
+      "name": "Idukki Arch Dam",
+      "state": "Kerala",
+      "lat": 9.843,
+      "lng": 76.975,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-057",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-008",
+      "type": "dam",
+      "name": "Almatti Dam",
+      "state": "Karnataka",
+      "lat": 16.331,
+      "lng": 75.892,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-040",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-009",
+      "type": "dam",
+      "name": "Mettur Dam",
+      "state": "Tamil Nadu",
+      "lat": 11.786,
+      "lng": 77.802,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-050",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DAM-IND-010",
+      "type": "dam",
+      "name": "Indira Sagar Dam",
+      "state": "Madhya Pradesh",
+      "lat": 22.282,
+      "lng": 76.472,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.9,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "parent_reservoir_id": "RSV-IND-008",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-001",
+      "type": "groundwater_station",
+      "name": "CGWB Delhi Ridge",
+      "state": "Delhi",
+      "lat": 28.61,
+      "lng": 77.2,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 18.4,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-002",
+      "type": "groundwater_station",
+      "name": "CGWB Jaipur",
+      "state": "Rajasthan",
+      "lat": 26.91,
+      "lng": 75.79,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "high",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 32.1,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-003",
+      "type": "groundwater_station",
+      "name": "CGWB Lucknow",
+      "state": "Uttar Pradesh",
+      "lat": 26.85,
+      "lng": 80.95,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 14.2,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-004",
+      "type": "groundwater_station",
+      "name": "CGWB Patna",
+      "state": "Bihar",
+      "lat": 25.6,
+      "lng": 85.14,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 9.8,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-005",
+      "type": "groundwater_station",
+      "name": "CGWB Bhopal",
+      "state": "Madhya Pradesh",
+      "lat": 23.26,
+      "lng": 77.41,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 16.5,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-006",
+      "type": "groundwater_station",
+      "name": "CGWB Ahmedabad",
+      "state": "Gujarat",
+      "lat": 23.03,
+      "lng": 72.58,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "high",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 28.7,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-007",
+      "type": "groundwater_station",
+      "name": "CGWB Pune",
+      "state": "Maharashtra",
+      "lat": 18.52,
+      "lng": 73.86,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 22.3,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-008",
+      "type": "groundwater_station",
+      "name": "CGWB Hyderabad",
+      "state": "Telangana",
+      "lat": 17.39,
+      "lng": 78.49,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 19.6,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-009",
+      "type": "groundwater_station",
+      "name": "CGWB Bengaluru",
+      "state": "Karnataka",
+      "lat": 12.97,
+      "lng": 77.59,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 24.8,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-010",
+      "type": "groundwater_station",
+      "name": "CGWB Chennai",
+      "state": "Tamil Nadu",
+      "lat": 13.08,
+      "lng": 80.27,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 11.2,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-011",
+      "type": "groundwater_station",
+      "name": "CGWB Kochi",
+      "state": "Kerala",
+      "lat": 9.93,
+      "lng": 76.27,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 6.4,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-012",
+      "type": "groundwater_station",
+      "name": "CGWB Bhubaneswar",
+      "state": "Odisha",
+      "lat": 20.27,
+      "lng": 85.84,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 8.9,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-013",
+      "type": "groundwater_station",
+      "name": "CGWB Kolkata",
+      "state": "West Bengal",
+      "lat": 22.57,
+      "lng": 88.36,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 7.1,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-014",
+      "type": "groundwater_station",
+      "name": "CGWB Guwahati",
+      "state": "Assam",
+      "lat": 26.14,
+      "lng": 91.74,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 5.6,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-015",
+      "type": "groundwater_station",
+      "name": "CGWB Chandigarh",
+      "state": "Chandigarh",
+      "lat": 30.73,
+      "lng": 76.78,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 15.3,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-016",
+      "type": "groundwater_station",
+      "name": "CGWB Nagpur",
+      "state": "Maharashtra",
+      "lat": 21.15,
+      "lng": 79.09,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 17.8,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-017",
+      "type": "groundwater_station",
+      "name": "CGWB Indore",
+      "state": "Madhya Pradesh",
+      "lat": 22.72,
+      "lng": 75.86,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 21.4,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-018",
+      "type": "groundwater_station",
+      "name": "CGWB Surat",
+      "state": "Gujarat",
+      "lat": 21.17,
+      "lng": 72.83,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 12.6,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-019",
+      "type": "groundwater_station",
+      "name": "CGWB Coimbatore",
+      "state": "Tamil Nadu",
+      "lat": 11.02,
+      "lng": 76.96,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 18.9,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "GW-IND-020",
+      "type": "groundwater_station",
+      "name": "CGWB Vizag",
+      "state": "Andhra Pradesh",
+      "lat": 17.69,
+      "lng": 83.22,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "healthy",
+      "confidence": 0.8,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "depth_to_water_m": 10.5,
+        "country": "IN"
+      }
+    },
+    {
+      "id": "DEM-IND-001",
+      "type": "demand_region",
+      "name": "Mumbai Metro Demand",
+      "state": "Maharashtra",
+      "lat": 19.076,
+      "lng": 72.8777,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-002",
+      "type": "demand_region",
+      "name": "Delhi NCT Demand",
+      "state": "Delhi",
+      "lat": 28.6139,
+      "lng": 77.209,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-003",
+      "type": "demand_region",
+      "name": "Bengaluru Urban Demand",
+      "state": "Karnataka",
+      "lat": 12.9716,
+      "lng": 77.5946,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-004",
+      "type": "demand_region",
+      "name": "Chennai Metro Demand",
+      "state": "Tamil Nadu",
+      "lat": 13.0827,
+      "lng": 80.2707,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-005",
+      "type": "demand_region",
+      "name": "Hyderabad GHMC Demand",
+      "state": "Telangana",
+      "lat": 17.385,
+      "lng": 78.4867,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-006",
+      "type": "demand_region",
+      "name": "Pune Urban Demand",
+      "state": "Maharashtra",
+      "lat": 18.5204,
+      "lng": 73.8567,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-007",
+      "type": "demand_region",
+      "name": "Ahmedabad AUDA Demand",
+      "state": "Gujarat",
+      "lat": 23.0225,
+      "lng": 72.5714,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-008",
+      "type": "demand_region",
+      "name": "Kolkata KMA Demand",
+      "state": "West Bengal",
+      "lat": 22.5726,
+      "lng": 88.3639,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-009",
+      "type": "demand_region",
+      "name": "Jaipur Urban Demand",
+      "state": "Rajasthan",
+      "lat": 26.9124,
+      "lng": 75.7873,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-010",
+      "type": "demand_region",
+      "name": "Lucknow Demand",
+      "state": "Uttar Pradesh",
+      "lat": 26.8467,
+      "lng": 80.9462,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-011",
+      "type": "demand_region",
+      "name": "Indore Demand",
+      "state": "Madhya Pradesh",
+      "lat": 22.7196,
+      "lng": 75.8577,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "DEM-IND-012",
+      "type": "demand_region",
+      "name": "Surat Demand",
+      "state": "Gujarat",
+      "lat": 21.1702,
+      "lng": 72.8311,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.75,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "region_kind": "municipal"
+      }
+    },
+    {
+      "id": "WSI-IND-001",
+      "type": "water_stress_region",
+      "name": "Marathwada Stress Corridor",
+      "state": "Maharashtra",
+      "lat": 19.15,
+      "lng": 76.5,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "high",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN"
+      }
+    },
+    {
+      "id": "WSI-IND-002",
+      "type": "water_stress_region",
+      "name": "Bundelkhand Stress Belt",
+      "state": "Uttar Pradesh",
+      "lat": 25.45,
+      "lng": 78.57,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "critical",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN"
+      }
+    },
+    {
+      "id": "WSI-IND-003",
+      "type": "water_stress_region",
+      "name": "Saurashtra Stress Zone",
+      "state": "Gujarat",
+      "lat": 21.76,
+      "lng": 70.8,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "high",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN"
+      }
+    },
+    {
+      "id": "WSI-IND-004",
+      "type": "water_stress_region",
+      "name": "Rayalaseema Stress Zone",
+      "state": "Andhra Pradesh",
+      "lat": 14.68,
+      "lng": 78.0,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "high",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN"
+      }
+    },
+    {
+      "id": "WSI-IND-005",
+      "type": "water_stress_region",
+      "name": "Vidarbha Stress Zone",
+      "state": "Maharashtra",
+      "lat": 21.15,
+      "lng": 79.09,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN"
+      }
+    },
+    {
+      "id": "WSI-IND-006",
+      "type": "water_stress_region",
+      "name": "Western Rajasthan Stress",
+      "state": "Rajasthan",
+      "lat": 26.9,
+      "lng": 70.9,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "critical",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN"
+      }
+    },
+    {
+      "id": "WSI-IND-007",
+      "type": "water_stress_region",
+      "name": "North Karnataka Stress",
+      "state": "Karnataka",
+      "lat": 15.85,
+      "lng": 75.7,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN"
+      }
+    },
+    {
+      "id": "WSI-IND-008",
+      "type": "water_stress_region",
+      "name": "Telangana Interior Stress",
+      "state": "Telangana",
+      "lat": 18.0,
+      "lng": 79.0,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.78,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN"
+      }
+    },
+    {
+      "id": "LEAK-IND-001",
+      "type": "leak_zone",
+      "name": "Mumbai Island City DMA",
+      "state": "Maharashtra",
+      "lat": 18.95,
+      "lng": 72.82,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "high",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "monitoring": "acoustic"
+      }
+    },
+    {
+      "id": "LEAK-IND-002",
+      "type": "leak_zone",
+      "name": "Delhi Central DMA",
+      "state": "Delhi",
+      "lat": 28.63,
+      "lng": 77.22,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "monitoring": "acoustic"
+      }
+    },
+    {
+      "id": "LEAK-IND-003",
+      "type": "leak_zone",
+      "name": "Bengaluru South DMA",
+      "state": "Karnataka",
+      "lat": 12.91,
+      "lng": 77.6,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "monitoring": "acoustic"
+      }
+    },
+    {
+      "id": "LEAK-IND-004",
+      "type": "leak_zone",
+      "name": "Chennai North DMA",
+      "state": "Tamil Nadu",
+      "lat": 13.12,
+      "lng": 80.28,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "high",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "monitoring": "acoustic"
+      }
+    },
+    {
+      "id": "LEAK-IND-005",
+      "type": "leak_zone",
+      "name": "Hyderabad Old City DMA",
+      "state": "Telangana",
+      "lat": 17.36,
+      "lng": 78.47,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "monitoring": "acoustic"
+      }
+    },
+    {
+      "id": "LEAK-IND-006",
+      "type": "leak_zone",
+      "name": "Pune Cantonment DMA",
+      "state": "Maharashtra",
+      "lat": 18.51,
+      "lng": 73.88,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "monitoring": "acoustic"
+      }
+    },
+    {
+      "id": "LEAK-IND-007",
+      "type": "leak_zone",
+      "name": "Ahmedabad East DMA",
+      "state": "Gujarat",
+      "lat": 23.03,
+      "lng": 72.62,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "high",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "monitoring": "acoustic"
+      }
+    },
+    {
+      "id": "LEAK-IND-008",
+      "type": "leak_zone",
+      "name": "Kolkata Howrah DMA",
+      "state": "West Bengal",
+      "lat": 22.59,
+      "lng": 88.31,
+      "capacity_mcm": null,
+      "current_storage_pct": null,
+      "forecast_storage_pct": null,
+      "risk_level": "moderate",
+      "confidence": 0.7,
+      "last_updated": "2026-07-27T09:55:34Z",
+      "meta": {
+        "country": "IN",
+        "monitoring": "acoustic"
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "model_name": "water_demand_model",
+  "algorithm": "RandomForestRegressor",
+  "training_data": "synthetic_municipal_demand",
+  "target": "Synthetic municipal daily demand (MGD) from climate/calendar process",
+  "features": [
+    "temperature_c",
+    "rainfall_deficit_pct",
+    "precip_mm",
+    "storage_pct",
+    "day_of_week",
+    "month",
+    "is_weekend",
+    "is_heatwave"
+  ],
+  "data_path": "data/synthetic/water_demand_synthetic.csv",
+  "rows_total": 8000,
+  "accuracy_gate_r2": 0.8,
+  "gate_passed": true,
+  "metrics": {
+    "train": {
+      "mae_mgd": 1.426,
+      "rmse_mgd": 1.83,
+      "r2": 0.99,
+      "n": 5600
+    },
+    "validation": {
+      "mae_mgd": 3.223,
+      "rmse_mgd": 4.004,
+      "r2": 0.9521,
+      "n": 1200
+    },
+    "test": {
+      "mae_mgd": 3.101,
+      "rmse_mgd": 3.956,
+      "r2": 0.9519,
+      "n": 1200
+    }
+  },
+  "feature_importances": {
+    "is_heatwave": 0.4669,
+    "temperature_c": 0.3095,
+    "rainfall_deficit_pct": 0.081,
+    "month": 0.0483,
+    "storage_pct": 0.0322,
+    "day_of_week": 0.0264,
+    "is_weekend": 0.0257,
+    "precip_mm": 0.01
+  },
+  "notes": [
+    "SYNTHETIC LABELS \u2014 not AMI meters, not CWC reservoir releases.",
+    "Accepted only if validation and test R\u00b2 \u2265 0.8.",
+    "Population and industrial index still scale the climate prediction at inference.",
+    "Use for UI/demo demand scenarios; replace with metered data for operations."
+  ],
+  "reference_population_thousands": 1000.0,
+  "system_aggregation_scale": 1.0
+}

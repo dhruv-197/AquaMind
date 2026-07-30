@@ -1,0 +1,39 @@
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: fastapi_app/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      AQUAMIND_ENVIRONMENT: production
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?set a long random secret in .env}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/aquamind.db}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      AQUAMIND_SEED_DEMO_DATA: ${AQUAMIND_SEED_DEMO_DATA:-false}
+    volumes:
+      # Trained model artifacts are not baked into the image — see
+      # fastapi_app/Dockerfile. Point this at a host/CI-produced ai/
+      # directory containing the *.pkl files before starting in production.
+      - ./ai:/app/ai
+      - aquamind-db:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      FASTAPI_INTERNAL_URL: http://fastapi:8000
+    depends_on:
+      - fastapi
+
+volumes:
+  aquamind-db:
