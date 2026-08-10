@@ -128,8 +128,8 @@ def test_predict_and_simulate(trained_registry: ModelRegistry):
 
 def test_what_if_preset(trained_registry: ModelRegistry):
     service = WaterStressIntelligenceService(trained_registry)
-    sim = service.simulate(region_id="WARD-08", preset_id="demand_up_20", horizon_days=10)
-    assert sim["preset_id"] == "demand_up_20"
+    sim = service.simulate(region_id="WARD-08", preset_id="increased_demand", horizon_days=10)
+    assert sim["preset_id"] == "increased_demand"
     assert sim["scenario"].get("demand_delta_pct") == 20
 
 

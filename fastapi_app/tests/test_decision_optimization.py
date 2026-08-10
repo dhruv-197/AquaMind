@@ -207,7 +207,7 @@ def test_service_integration(trained_registry: ModelRegistry):
     assert data["upstream_ready"]["reservoir"] is True
 
     cmp = service.compare(region_id="WARD-08", horizon_days=14, max_actions=6)
-    assert cmp["scenario_comparison"]["current"]["label"] == "Current Strategy"
+    assert cmp["scenario_comparison"]["current"]["label"] == "Do nothing (baseline)"
     assert cmp["scenario_comparison"]["optimized"]["label"] == "Ranked Action Plan"
     assert "estimated impact" in cmp["scenario_comparison"]["optimized"]["description"].lower()
     disclaimer = (cmp["scenario_comparison"].get("disclaimer") or "").lower()
