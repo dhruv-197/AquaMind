@@ -34,5 +34,13 @@ ENV AQUAMIND_ENVIRONMENT=production
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
+RUN useradd --create-home --uid 10001 --shell /usr/sbin/nologin aquamind \
+    && mkdir -p /app/data/imports /data \
+    && chown -R aquamind:aquamind /app /data
+USER aquamind
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"
+
 # No --reload in production; workers scale via WEB_CONCURRENCY if needed.
 CMD ["uvicorn", "fastapi_app.main:app", "--host", "0.0.0.0", "--port", "8000"]

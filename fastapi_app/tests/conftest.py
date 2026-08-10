@@ -6,6 +6,7 @@ via TestClient need an authenticated client instead of a bare one.
 """
 from __future__ import annotations
 
+import base64
 import os
 import sys
 
@@ -18,6 +19,41 @@ from fastapi_app.main import app
 
 TEST_USER_EMAIL = "pytest-runner@aquamind.test"
 TEST_USER_PASSWORD = "PytestRunner123"
+
+# 1x1 PNG — used wherever vision upload validation requires real image bytes.
+TINY_PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+)
+
+
+@pytest.fixture(autouse=True)
+def _clear_process_caches():
+    """L1 TTL caches must not leak hits across tests in the same process."""
+    from fastapi_app.core.ttl_cache import (
+        model_status_cache,
+        recommendation_cache,
+        vision_history_cache,
+        weather_cache,
+        wi_cache,
+    )
+
+    for cache in (
+        wi_cache,
+        weather_cache,
+        recommendation_cache,
+        model_status_cache,
+        vision_history_cache,
+    ):
+        cache.clear()
+    yield
+    for cache in (
+        wi_cache,
+        weather_cache,
+        recommendation_cache,
+        model_status_cache,
+        vision_history_cache,
+    ):
+        cache.clear()
 
 
 @pytest.fixture(scope="session")

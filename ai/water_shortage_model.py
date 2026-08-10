@@ -185,6 +185,13 @@ class WaterShortageModel:
             "metrics": {"validation": metrics(validation), "test": test_metrics},
             "baseline_comparison": {
                 "test_persistence_baseline": test_baseline,
+                "seasonal_naive": {
+                    "status": "unsupported_insufficient_history",
+                    "reason": (
+                        "Source coverage is a single short calendar window — "
+                        "prior-year same-calendar-day values are not available."
+                    ),
+                },
                 "model_beats_persistence_baseline": beats_baseline,
                 "note": (
                     "Model beats the naive 'no change' baseline on held-out test MAE."
@@ -198,6 +205,15 @@ class WaterShortageModel:
                     )
                 ),
             },
+            "model_name": "water_shortage_model",
+            "algorithm": "RandomForestRegressor",
+            "target_unit": "percentage_points (live storage fill %)",
+            "random_seed": 42,
+            "split_strategy": "chronological_by_unique_date (70% / 15% / 15%)",
+            "multi_day_horizon": {
+                "trained_output": "one_day",
+                "day_7_and_day_30": "extrapolated_heuristic",
+            },
             "limitations": [
                 "Trained from a single March 2024 CWC extract; not a long-term drought model.",
                 "Weather is Delhi NASA POWER joined by date — a climate proxy, not per-reservoir station weather.",
@@ -205,13 +221,18 @@ class WaterShortageModel:
                 "Risk bands are operational display rules based on the forecast, not observed shortage labels.",
                 "Test partition spans only a handful of unique calendar days shared across all reservoirs; "
                 "treat the reported row count as inflated relative to independent temporal observations.",
+                "Does not claim geographic generalization beyond reservoirs present in the training extract.",
             ],
         }
         joblib.dump({"model": model, "features": FEATURES, "metadata": metadata}, MODEL_PATH)
         METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+        self._cached_payload = {"model": model, "features": FEATURES, "metadata": metadata}
         return metadata
 
     def load_model(self) -> dict:
+        cached = getattr(self, "_cached_payload", None)
+        if cached is not None:
+            return cached
         if MODEL_PATH.exists():
             payload = joblib.load(MODEL_PATH)
             if (
@@ -219,8 +240,11 @@ class WaterShortageModel:
                 and "model" in payload
                 and payload.get("features") == FEATURES
             ):
+                self._cached_payload = payload
                 return payload
-        return {"model": None, "features": FEATURES, "metadata": self.train()}
+        payload = {"model": None, "features": FEATURES, "metadata": self.train()}
+        self._cached_payload = payload
+        return payload
 
     def predict(self, input_features: dict) -> dict:
         payload = self.load_model()

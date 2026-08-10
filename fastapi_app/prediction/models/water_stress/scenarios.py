@@ -4,31 +4,60 @@ from __future__ import annotations
 from typing import Any
 
 
+# Product presets reuse existing fusion knobs only — no new model formulas.
+# Leakage maps to demand_delta_pct as an effective-demand proxy (documented in UI).
 WHAT_IF_PRESETS: list[dict[str, Any]] = [
     {
-        "id": "rainfall_drop_30",
-        "label": "What if rainfall drops 30%?",
-        "scenario": {"rainfall_delta_pct": -30},
+        "id": "baseline",
+        "label": "Baseline (no stress change)",
+        "category": "baseline",
+        "description": "Clear scenario knobs and re-run the live fusion.",
+        "scenario": {},
     },
     {
-        "id": "demand_up_20",
-        "label": "What if demand increases 20%?",
+        "id": "drought_rainfall_deficit",
+        "label": "Drought / rainfall deficit (−35%)",
+        "category": "drought",
+        "description": "Projects a dry spell by reducing rainfall input to the fusion.",
+        "scenario": {"rainfall_delta_pct": -35},
+    },
+    {
+        "id": "heatwave",
+        "label": "Heatwave (+4°C, demand +10%)",
+        "category": "heatwave",
+        "description": "Warmer temperatures with a modest demand uplift.",
+        "scenario": {"temperature_delta_c": 4, "demand_delta_pct": 10},
+    },
+    {
+        "id": "increased_demand",
+        "label": "Increased demand (+20%)",
+        "category": "demand",
+        "description": "Higher municipal / industrial demand pressure.",
         "scenario": {"demand_delta_pct": 20},
     },
     {
+        "id": "leakage_increase",
+        "label": "Leakage increase (as +15% demand)",
+        "category": "leakage",
+        "description": (
+            "Models elevated non-revenue water as additional system demand. "
+            "This is a projection proxy — not a measured leak volume."
+        ),
+        "scenario": {"demand_delta_pct": 15},
+    },
+    {
+        "id": "conservation",
+        "label": "Conservation intervention (−15% demand)",
+        "category": "conservation",
+        "description": "Demand-side conservation reducing effective consumption.",
+        "scenario": {"demand_delta_pct": -15},
+    },
+    {
         "id": "reservoir_a_15",
-        "label": "What if Reservoir A reaches 15%?",
+        "label": "Critical storage (Reservoir A at 15%)",
+        "category": "storage",
+        "description": "Absolute storage override for a named reservoir.",
         "scenario": {"reservoir_level_pct": 15, "reservoir_id": "RES-A"},
-    },
-    {
-        "id": "population_up_10",
-        "label": "What if population grows 10%?",
-        "scenario": {"population_delta_pct": 10},
-    },
-    {
-        "id": "temp_up_3",
-        "label": "What if temperature rises 3°C?",
-        "scenario": {"temperature_delta_c": 3},
     },
 ]
 
@@ -59,3 +88,17 @@ def delay_days_from_delta(baseline_wsi: float, scenario_wsi: float) -> int:
     delta = float(baseline_wsi) - float(scenario_wsi)
     # Each WSI point ≈ ~1.2 days of buffer
     return int(round(delta * 1.2))
+
+
+def preset_catalog() -> list[dict[str, Any]]:
+    """Public preset list for status / UI (includes description metadata)."""
+    return [
+        {
+            "id": p["id"],
+            "label": p["label"],
+            "category": p.get("category"),
+            "description": p.get("description"),
+            "scenario": p["scenario"],
+        }
+        for p in WHAT_IF_PRESETS
+    ]

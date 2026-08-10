@@ -119,17 +119,17 @@ export const ClimateKpiCards: React.FC<{ result: ClimateRiskResult }> = ({ resul
       {cards.map((c) => (
         <GlassCard key={c.label} className="!rounded-[16px] !p-4" hoverEffect={false}>
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="text-[16px] font-semibold uppercase tracking-wider text-[var(--am-text-tertiary)]">
-                  {c.label}
-                </p>
-                <InfoTooltip content={c.tip} label={`About ${c.label}`} />
-              </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[16px] font-semibold uppercase tracking-wider text-[var(--am-text-tertiary)]">
+                {c.label}
+              </p>
               <p className={`mt-1 text-2xl font-bold ${c.tone ?? 'text-[var(--am-text)]'}`}>{c.value}</p>
               <p className="mt-1 text-[14px] text-[var(--am-text-secondary)]">{c.sub}</p>
             </div>
-            <c.icon className="h-5 w-5 shrink-0 text-[var(--am-accent)]" aria-hidden />
+            <div className="flex h-6 shrink-0 items-center gap-1.5">
+              <InfoTooltip content={c.tip} label={`About ${c.label}`} />
+              <c.icon className="h-5 w-5 shrink-0 text-[var(--am-accent)]" aria-hidden />
+            </div>
           </div>
         </GlassCard>
       ))}

@@ -40,12 +40,12 @@ class ReservoirPredictRequest(BaseModel):
       { "horizon_days": 7, "horizons": [1,7,15,30] }
     """
 
-    value: Optional[int] = Field(default=None, ge=1, description="Forecast length in unit")
+    value: Optional[int] = Field(default=None, ge=1, le=3650, description="Forecast length in unit")
     unit: Optional[Literal["days", "weeks", "months", "years"]] = Field(
         default=None,
         description="Forecast unit",
     )
-    horizon_days: int = Field(default=7, description="Legacy: forecast horizon in days")
+    horizon_days: int = Field(default=7, ge=1, le=365, description="Legacy: forecast horizon in days (1–365)")
     horizons: Optional[list[int]] = Field(
         default=None,
         description="Legacy: optional list of horizons for bundled response",
@@ -58,7 +58,7 @@ class ReservoirPredictRequest(BaseModel):
         default=None,
         description="National geospatial asset id (e.g. RSV-IND-017). Resolved to a forecast proxy.",
     )
-    capacity_mcm: Optional[float] = None
+    capacity_mcm: Optional[float] = Field(default=None, ge=0.0)
     feature_overrides: dict[str, Any] = Field(default_factory=dict)
     include_history_days: int = Field(default=90, ge=7, le=730)
 

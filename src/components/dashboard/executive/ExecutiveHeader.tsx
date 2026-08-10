@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Activity,
   Download,
   FileBarChart2,
   LayoutGrid,
@@ -13,12 +14,16 @@ import { PageTitleIcon } from '../../ui/PageTitleIcon';
 import type { RiskTone } from '../../../design-system/tokens';
 
 type Props = {
-  securityScore: number;
+  securityScore: number | null;
   systemHealth: { label: string; tone: RiskTone };
-  aiConfidence: number;
+  /**
+   * Weighted WSI inputs the backend reported as usable this cycle, or null
+   * while the fusion has not answered. Never a synthesized confidence figure.
+   */
+  fusionInputs: { live: number; total: number } | null;
   lastUpdated: string;
   municipalStatus: { label: string; tone: RiskTone };
-  criticalAlerts: number;
+  criticalAlerts: number | null;
   regionLabel?: string | null;
   onGenerateReport: () => void;
   onScenarioFocus: () => void;
@@ -29,7 +34,7 @@ type Props = {
 export const ExecutiveHeader: React.FC<Props> = ({
   securityScore,
   systemHealth,
-  aiConfidence,
+  fusionInputs,
   lastUpdated,
   municipalStatus,
   criticalAlerts,
@@ -78,12 +83,17 @@ export const ExecutiveHeader: React.FC<Props> = ({
     <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
       <HeroMetric
         label="Water Security Score"
-        value={String(securityScore)}
-        suffix="/ 100"
+        value={securityScore == null ? '-' : String(securityScore)}
+        suffix={securityScore == null ? undefined : '/ 100'}
         icon={<ShieldCheck className="h-4 w-4" strokeWidth={2} />}
       />
       <HeroMetric label="System Health" value={systemHealth.label} badge={{ label: systemHealth.label, tone: systemHealth.tone }} />
-      <HeroMetric label="Prediction Confidence" value={`${Math.round(aiConfidence * 100)}%`} />
+      <HeroMetric
+        label="Live Fusion Inputs"
+        value={fusionInputs == null ? '-' : `${fusionInputs.live} / ${fusionInputs.total}`}
+        suffix={fusionInputs == null ? undefined : 'reporting'}
+        icon={<Activity className="h-4 w-4" strokeWidth={2} />}
+      />
       <HeroMetric label="Last Updated" value={lastUpdated} />
       <HeroMetric
         label="Municipal Status"
@@ -92,11 +102,15 @@ export const ExecutiveHeader: React.FC<Props> = ({
       />
       <HeroMetric
         label="Critical Alerts"
-        value={String(criticalAlerts)}
-        badge={{
-          label: criticalAlerts > 0 ? 'Attention' : 'Clear',
-          tone: criticalAlerts > 0 ? 'danger' : 'success',
-        }}
+        value={criticalAlerts == null ? '-' : String(criticalAlerts)}
+        badge={
+          criticalAlerts == null
+            ? { label: 'Unavailable', tone: 'neutral' }
+            : {
+                label: criticalAlerts > 0 ? 'Attention' : 'Clear',
+                tone: criticalAlerts > 0 ? 'danger' : 'success',
+              }
+        }
       />
     </div>
   </section>

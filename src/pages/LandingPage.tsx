@@ -107,13 +107,14 @@ export const LandingPage: React.FC = () => {
           transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           className="landing-hero-inner"
         >
-          <p className="landing-brand-eyebrow">AquaMind AI</p>
+          <p className="landing-brand-eyebrow">AquaMind AI · Water Intelligence Platform</p>
           <h1 className="landing-headline-enterprise">
-            Water Intelligence for Smarter Infrastructure Decisions
+            Predict water shortages, leakages and groundwater depletion
           </h1>
           <p className="landing-sub-enterprise">
-            Monitor water demand, predict shortages, assess climate risks, and make faster
-            operational decisions using AI-powered forecasting.
+            AquaMind fuses weather, consumption, reservoir and sensor data into one auditable
+            Water Stress Index — and returns the drivers, weights and data source behind every
+            score, so the number can always be checked.
           </p>
           <div className="landing-frame-actions">
             <Link to="/signup" className="landing-btn-primary landing-btn-lg">

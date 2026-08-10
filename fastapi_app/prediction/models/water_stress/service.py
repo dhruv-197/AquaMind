@@ -20,6 +20,7 @@ from fastapi_app.prediction.models.water_stress.regions import get_region, load_
 from fastapi_app.prediction.models.water_stress.scenarios import (
     WHAT_IF_PRESETS,
     normalize_scenario,
+    preset_catalog,
 )
 
 
@@ -58,10 +59,7 @@ class WaterStressIntelligenceService:
                 }
                 for r in regions
             ],
-            "what_if_presets": [
-                {"id": p["id"], "label": p["label"], "scenario": p["scenario"]}
-                for p in WHAT_IF_PRESETS
-            ],
+            "what_if_presets": preset_catalog(),
             "message": (
                 "Ready — fusion uses trained upstream models"
                 if ready
@@ -296,6 +294,11 @@ class WaterStressIntelligenceService:
             ],
             "summary": summary,
             "components": fusion["components"],
+            "baseline_components": baseline_fusion["components"] if has_scenario else None,
+            "baseline_risk_label": baseline_fusion["risk_label"] if has_scenario else None,
+            "baseline_expected_stress_date": (
+                baseline_fusion.get("expected_stress_date") if has_scenario else None
+            ),
             "weights": fusion["weights"],
             "inputs": fusion["inputs"],
             "recommended_actions": recs["recommended_actions"],
@@ -306,10 +309,12 @@ class WaterStressIntelligenceService:
             "regional_comparison": regional_comparison,
             "map_regions": map_regions,
             "has_scenario": has_scenario,
-            "what_if_presets": [
-                {"id": p["id"], "label": p["label"], "scenario": p["scenario"]}
-                for p in WHAT_IF_PRESETS
-            ],
+            "projection_disclaimer": (
+                "Scenario values are projections from the fusion model, not field observations."
+                if has_scenario
+                else None
+            ),
+            "what_if_presets": preset_catalog(),
             "upstream_status": {
                 "demand_trained": bool(demand and demand.get("trained")),
                 "reservoir_trained": bool(reservoir and reservoir.get("trained")),

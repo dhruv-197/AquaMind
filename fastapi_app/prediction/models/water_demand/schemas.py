@@ -42,20 +42,22 @@ class DemandPredictRequest(BaseModel):
       { "horizon_days": 7, "horizons": [1,7,15,30] }
     """
 
-    value: Optional[int] = Field(default=None, ge=1, description="Forecast length in unit")
+    value: Optional[int] = Field(default=None, ge=1, le=3650, description="Forecast length in unit")
     unit: Optional[Literal["days", "weeks", "months", "years"]] = Field(
         default=None,
         description="Forecast unit",
     )
     horizon_days: int = Field(
         default=7,
-        description="Legacy: forecast horizon in days",
+        ge=1,
+        le=365,
+        description="Legacy: forecast horizon in days (1–365)",
     )
     horizons: Optional[list[int]] = Field(
         default=None,
         description="Legacy: optional list of horizons for bundled response",
     )
-    capacity_mgd: Optional[float] = None
+    capacity_mgd: Optional[float] = Field(default=None, ge=0.0)
     feature_overrides: dict[str, Any] = Field(default_factory=dict)
     include_history_days: int = Field(
         default=90,

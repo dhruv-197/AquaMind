@@ -151,7 +151,10 @@ def test_water_intelligence_response_mapping():
     }
     data = _to_response_data(payload)
     assert data.water_stress.water_stress_index >= 0
-    assert data.context["reservoirs_sampled"] == 3
+    assert data.context is not None
+    assert data.context.reservoirs_sampled == 3
+    # Legacy extras on nested components remain available after validation.
+    assert data.leak.model_dump().get("demo") is True
 
 
 def test_wsi_demo_leak_is_muted():

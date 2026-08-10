@@ -297,25 +297,49 @@ class LeakDetectionModel:
                 "rows": int(len(frame)),
             }
 
+        test_metrics = cls_metrics(test)
+        from ai.evaluation import majority_class_baseline_from_cm
+
+        majority = majority_class_baseline_from_cm(test_metrics["confusion_matrix"])
         metadata = {
+            "model_name": "leak_detection_model",
             "model_type": "ExtraTreesClassifier",
+            "algorithm": "ExtraTreesClassifier",
             "task": "binary acoustic leak / no-leak detection",
             "source": "Aqua Dataset/Leak detection training data",
+            "training_dataset": "Lab acoustic leak detection recordings",
             "sensors": SENSOR_TYPES,
             "topologies": TOPOLOGIES,
             "leak_types": [lt for lt in LEAK_TYPES if lt != NO_LEAK_FOLDER],
             "features": FEATURES,
             "target": "label (0=No-leak, 1=Leak)",
+            "target_unit": "binary class",
             "decision_threshold": DECISION_THRESHOLD,
+            "random_seed": SPLIT_SEED,
             "split_method": "stratified file-level split + no-leak noise augmentation",
+            "split_strategy": "stratified file-level split (disjoint recording files) + no-leak noise augmentation on train only",
             "split_seed": SPLIT_SEED,
+            "field_validation_status": "lab_trained_not_field_validated",
             "metrics": {
-                "validation": cls_metrics(validation),
-                "test": cls_metrics(test),
+                "validation": {**cls_metrics(validation), "threshold": DECISION_THRESHOLD},
+                "test": {**test_metrics, "threshold": DECISION_THRESHOLD},
+            },
+            "baseline_comparison": {
+                "majority_class_baseline": {
+                    **majority,
+                    "derived_from": "test confusion_matrix counts",
+                },
+                "model_beats_majority_f1": test_metrics["f1"] > majority["f1"],
+                "model_beats_majority_accuracy": test_metrics["accuracy"] > majority["accuracy"],
+            },
+            "volume_prediction": {
+                "supported": False,
+                "note": "Classifier does not predict water volume.",
             },
             "limitations": [
                 "Trained on accelerometer lab recordings (branched and looped topologies).",
                 "No water-loss volume in training labels; volumetric estimates are not supported.",
+                "Lab-trained, not field-validated on DMA networks.",
             ],
         }
 
@@ -331,16 +355,32 @@ class LeakDetectionModel:
         METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         print("[LeakDetectionModel] Training complete. Metrics:")
         print(json.dumps(metadata["metrics"], indent=2))
+        self._cached_payload = {
+            "model": model,
+            "features": FEATURES,
+            "metadata": metadata,
+            "decision_threshold": DECISION_THRESHOLD,
+        }
         return metadata
 
     def load_model(self) -> dict:
+        cached = getattr(self, "_cached_payload", None)
+        if cached is not None:
+            return cached
         if not MODEL_PATH.exists():
-            return {"model": None, "features": FEATURES, "metadata": self.train()}
+            payload = {"model": None, "features": FEATURES, "metadata": self.train()}
+            self._cached_payload = payload
+            return payload
         payload = joblib.load(MODEL_PATH)
         if not isinstance(payload, dict) or "model" not in payload:
-            return {"model": None, "features": FEATURES, "metadata": self.train()}
+            payload = {"model": None, "features": FEATURES, "metadata": self.train()}
+            self._cached_payload = payload
+            return payload
         if payload.get("features") != FEATURES:
-            return {"model": None, "features": FEATURES, "metadata": self.train()}
+            payload = {"model": None, "features": FEATURES, "metadata": self.train()}
+            self._cached_payload = payload
+            return payload
+        self._cached_payload = payload
         return payload
 
     def predict_from_features(self, feature_vector: np.ndarray) -> dict:

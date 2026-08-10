@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -19,7 +19,6 @@ import {
 import { loadAlerts } from '../../services/telemetry';
 import { ThemeToggle } from '../common/ThemeToggle';
 import { BrandLogo } from '../common/BrandLogo';
-import { useTheme } from '../../context/ThemeContext';
 import { WaterCopilot } from '../copilot/WaterCopilot';
 import { IconButton } from '../ui/IconButton';
 
@@ -59,13 +58,19 @@ const navItems = [
 export const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLight } = useTheme();
   const [activeAlertCount, setActiveAlertCount] = useState(0);
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem(SIDEBAR_KEY) === '1';
   });
   const avatarLabel = useMemo(() => profileInitials(), [location.pathname]);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    // Page content scrolls inside <main>, not the window — reset on every route change.
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
@@ -88,6 +93,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   }, [location.pathname]);
 
   return (
+    <>
     <div className="app-shell flex h-dvh max-h-dvh flex-col overflow-hidden font-sans text-[var(--am-text)]">
       <header className="app-header sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between gap-4 border-b border-[var(--am-border)] bg-[var(--am-bg-elevated)]/90 px-4 backdrop-blur-xl sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
@@ -191,12 +197,15 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                 collapsed ? 'text-center' : 'px-1'
               }`}
             >
-              {collapsed ? 'AM' : isLight ? 'AquaMind Enterprise' : 'AquaMind · Dark'}
+              {collapsed ? 'AM' : 'AquaMind AI'}
             </p>
           </div>
         </aside>
 
-        <main className="mx-auto min-h-0 w-full max-w-[1600px] flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 lg:px-7 lg:py-6">
+        <main
+          ref={mainRef}
+          className="mx-auto min-h-0 w-full max-w-[1600px] flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 lg:px-7 lg:py-6"
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -210,7 +219,8 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
           </AnimatePresence>
         </main>
       </div>
-      <WaterCopilot />
     </div>
+      <WaterCopilot />
+    </>
   );
 };

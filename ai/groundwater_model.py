@@ -14,6 +14,8 @@ from pathlib import Path
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
+from ai.evaluation import persistence_baseline
+
 AI_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = AI_DIR.parent
 DEFAULT_DATA_PATH = (
@@ -38,6 +40,46 @@ FEATURES = [
     "Month_cos",
     "Well_Type_Encoded",
 ]
+
+
+def _station_error_summary(test: pd.DataFrame, model) -> dict:
+    """Compact per-station test MAE for honesty about spatial heterogeneity."""
+    if "Station Code" not in test.columns or len(test) == 0:
+        return {"status": "unavailable", "note": "Station codes missing from test frame."}
+    preds = model.predict(test[FEATURES])
+    frame = test.copy()
+    frame["_abs_err"] = np.abs(frame["Water_Level"].to_numpy() - preds)
+    grouped = (
+        frame.groupby("Station Code")["_abs_err"]
+        .agg(["mean", "count"])
+        .rename(columns={"mean": "mae_meters", "count": "rows"})
+        .sort_values("mae_meters", ascending=False)
+    )
+    worst = grouped.head(5).reset_index().to_dict(orient="records")
+    best = grouped.tail(5).reset_index().to_dict(orient="records")
+    return {
+        "status": "ok",
+        "stations_scored": int(len(grouped)),
+        "worst_5_by_mae": [
+            {
+                "station_code": str(r["Station Code"]),
+                "mae_meters": round(float(r["mae_meters"]), 4),
+                "rows": int(r["rows"]),
+            }
+            for r in worst
+        ],
+        "best_5_by_mae": [
+            {
+                "station_code": str(r["Station Code"]),
+                "mae_meters": round(float(r["mae_meters"]), 4),
+                "rows": int(r["rows"]),
+            }
+            for r in best
+        ],
+        "note": "Station MAE on held-out test years only — not a geographic holdout.",
+    }
+
+
 WELL_TYPE_MAP = {
     "-": 0,
     "Dug well": 1,
@@ -189,22 +231,51 @@ class GroundwaterModel:
                 "rows": int(len(frame)),
             }
 
+        val_metrics = metrics(validation)
+        test_metrics = metrics(test)
+        persist = persistence_baseline(
+            test["Water_Level"],
+            test["prev_observed_depth"],
+            unit_key="meters",
+            method="persistence (predicted Water_Level = prev_observed_depth)",
+        )
         metadata = {
+            "model_name": "groundwater_model",
             "model_type": "RandomForestRegressor",
+            "algorithm": "RandomForestRegressor",
             "task": "next observed groundwater level depth prediction",
             "source": str(DEFAULT_DATA_PATH.relative_to(PROJECT_DIR)),
+            "training_dataset": "CGWB quality-controlled groundwater levels over India",
             "features": FEATURES,
             "target": "Water_Level",
+            "target_unit": "meters (depth to water)",
+            "random_seed": 42,
+            "split_strategy": "chronological_by_year (train ≤2019, validation 2020-2022, test ≥2023)",
             "temporal_split": {
                 "train_end_year": 2019,
                 "validation_years": "2020-2022",
                 "test_start_year": 2023,
             },
-            "metrics": {"validation": metrics(validation), "test": metrics(test)},
+            "metrics": {"validation": val_metrics, "test": test_metrics},
+            "baseline_comparison": {
+                "test_persistence_baseline": persist,
+                "seasonal_naive": {
+                    "status": "supported_at_retrain",
+                    "method": "same calendar month prior year within station when history exists",
+                },
+                "model_beats_persistence_mae": test_metrics["mae_meters"] < persist["mae_meters"],
+            },
+            "distribution_shift": {
+                "validation_r2": val_metrics["r2"],
+                "test_r2": test_metrics["r2"],
+                "note": "Lower test R² vs validation indicates temporal distribution shift.",
+            },
+            "error_by_station": _station_error_summary(test, model),
             "limitations": [
                 "Trained on historical CGWB well telemetry; local aquifer-specific conditions vary.",
                 "Weather and rainfall variables are excluded due to lack of spatial matching at well locations.",
                 "Assumes well depth and well type remain constant over time.",
+                "Split is temporal, not geographic — do not claim unseen-basin generalization.",
             ],
         }
 
@@ -212,17 +283,28 @@ class GroundwaterModel:
         METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         print("[GroundwaterModel] Training completed and saved.")
         print(json.dumps(metadata["metrics"], indent=2))
+        self._cached_payload = {"model": model, "features": FEATURES, "metadata": metadata}
         return metadata
 
     def load_model(self) -> dict:
+        cached = getattr(self, "_cached_payload", None)
+        if cached is not None:
+            return cached
         if not MODEL_PATH.exists():
-            return {"model": None, "features": FEATURES, "metadata": self.train()}
+            payload = {"model": None, "features": FEATURES, "metadata": self.train()}
+            self._cached_payload = payload
+            return payload
         payload = joblib.load(MODEL_PATH)
         if not isinstance(payload, dict) or "model" not in payload:
-            return {"model": None, "features": FEATURES, "metadata": self.train()}
+            payload = {"model": None, "features": FEATURES, "metadata": self.train()}
+            self._cached_payload = payload
+            return payload
         # Retrain if feature set changed
         if payload.get("features") != FEATURES:
-            return {"model": None, "features": FEATURES, "metadata": self.train()}
+            payload = {"model": None, "features": FEATURES, "metadata": self.train()}
+            self._cached_payload = payload
+            return payload
+        self._cached_payload = payload
         return payload
 
     def predict(self, input_features: dict) -> dict:
@@ -312,6 +394,14 @@ class GroundwaterModel:
             "confidence": round(max(0.0, min(1.0, 1 - test_mae / 100)), 2),
             "model_scope": "groundwater well depth forecast",
             "test_r2": test_r2,
+            "evaluation": {
+                "test_mae_meters": test_mae,
+                "test_r2": test_r2,
+                "distribution_shift_note": (payload.get("metadata") or {})
+                .get("distribution_shift", {})
+                .get("note"),
+                "split_strategy": (payload.get("metadata") or {}).get("split_strategy"),
+            },
         }
 
 

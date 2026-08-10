@@ -106,8 +106,10 @@ class WaterAssetsRepository:
             ]
         if offset:
             rows = rows[offset:]
-        if limit is not None:
-            rows = rows[:limit]
+        # Cap unbounded map payloads — callers can still raise limit up to the
+        # route's max (5000). None previously returned the full national catalog.
+        effective_limit = 2000 if limit is None else limit
+        rows = rows[:effective_limit]
         return rows
 
 

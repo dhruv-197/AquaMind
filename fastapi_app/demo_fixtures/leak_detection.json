@@ -1,0 +1,15 @@
+{
+  "_fixture": "Stands in for the acoustic leak classifier when ai/*.pkl artifacts are missing and AQUAMIND_DEMO_MODE=true. Mirrors the shape returned by ModelService.detect_leak_signal.",
+  "is_leak_detected": true,
+  "leak_probability": 0.8063,
+  "estimated_water_loss_lpm": 17.0,
+  "daily_loss_mld": 0.0245,
+  "severity": "High anomaly detected",
+  "zone": "DMA-3 trunk main",
+  "model_scope": "acoustic leak signal classifier",
+  "loss_confidence": 0.4,
+  "loss_method": "heuristic_orifice",
+  "confidence": 0.4,
+  "observed_at": "2026-07-30T18:50:49.268636+00:00",
+  "note": "Captured demo fixture."
+}

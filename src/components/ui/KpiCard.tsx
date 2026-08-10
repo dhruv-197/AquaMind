@@ -77,6 +77,17 @@ function AnimatedValue({ value }: { value: string }) {
   );
 }
 
+function shortStatusLabel(raw: string): string {
+  const s = raw.trim();
+  if (!s) return s;
+  // Prefer compact title-case so badges never crowd the title row.
+  return s
+    .toLowerCase()
+    .split(/[\s_]+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
 export const KpiCard: React.FC<KpiCardProps> = ({
   label,
   value,
@@ -95,21 +106,34 @@ export const KpiCard: React.FC<KpiCardProps> = ({
 
   return (
     <div
-      className={`am-kpi group relative overflow-hidden rounded-[16px] border border-[var(--am-border)] bg-[var(--am-bg-elevated)] p-5 shadow-[var(--am-shadow-sm)] transition-all duration-200 hover:border-[var(--am-border-strong,var(--am-border))] hover:shadow-[var(--am-shadow-md)] ${className}`}
+      className={`am-kpi group relative rounded-[16px] border border-[var(--am-border)] bg-[var(--am-bg-elevated)] p-5 shadow-[var(--am-shadow-sm)] transition-all duration-200 hover:border-[var(--am-border-strong,var(--am-border))] hover:shadow-[var(--am-shadow-md)] ${className}`}
     >
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 opacity-80"
+        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 rounded-t-[16px] opacity-80"
         style={{ background: stroke }}
         aria-hidden
       />
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <p className="text-[14px] font-semibold uppercase tracking-[0.06em] text-[var(--am-text-secondary)]">
-            {label}
-          </p>
+
+      {/* Row 1: title + fixed info icon (never shares space with badge) */}
+      <div className="flex min-h-6 items-center gap-2">
+        <p className="min-w-0 flex-1 truncate text-[14px] font-semibold uppercase tracking-[0.06em] text-[var(--am-text-secondary)]">
+          {label}
+        </p>
+        <div className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center">
           {tooltip ? <InfoTooltip content={tooltip} label={`About ${label}`} /> : null}
         </div>
-        {status ? <StatusBadge status={status.label} /> : null}
+      </div>
+
+      {/* Row 2: status badge alone — cannot overlap the title */}
+      <div className="mt-1.5 flex min-h-[1.5rem] items-center">
+        {status ? (
+          <StatusBadge
+            status={shortStatusLabel(status.label)}
+            className="max-w-full truncate whitespace-nowrap text-[12px]"
+          />
+        ) : (
+          <span className="inline-block h-6" aria-hidden />
+        )}
       </div>
 
       <div className="mt-3 flex items-end justify-between gap-3">
@@ -117,7 +141,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
         {sparkline ? <Sparkline values={sparkline} stroke={stroke} /> : null}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 min-h-[18px]">
+      <div className="mt-3 flex min-h-[18px] flex-wrap items-center gap-x-2 gap-y-1">
         {trend ? (
           <span
             className={`inline-flex items-center gap-1 text-[15px] font-medium ${

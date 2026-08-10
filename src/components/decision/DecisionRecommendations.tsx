@@ -3,6 +3,7 @@ import type { DecisionAction } from './types';
 import { StatusBadge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { EmptyState } from '../ui/EmptyState';
+import { RecommendationFeedbackControls } from '../ui/RecommendationFeedbackControls';
 
 type Props = {
   actions?: DecisionAction[];
@@ -108,6 +109,7 @@ export const DecisionRecommendations: React.FC<Props> = ({ actions }) => {
                     ))}
                   </ul>
                 ) : null}
+                <RecommendationFeedbackControls recommendationId={featured.id} source="decision" />
               </div>
             </article>
           ) : null}
@@ -148,6 +150,7 @@ export const DecisionRecommendations: React.FC<Props> = ({ actions }) => {
                           Confidence: {a.confidence != null ? `${Math.round(a.confidence * 100)}%` : '-'} · Effort{' '}
                           {effortLabel(a.estimated_cost_inr)}
                         </p>
+                        <RecommendationFeedbackControls recommendationId={a.id} source="decision" />
                       </div>
                     ) : null}
                   </li>

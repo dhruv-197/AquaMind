@@ -26,6 +26,19 @@ except Exception as e:
     print(f"[ModelService] Notice: AI model import deferred or fallback mode active: {e}")
     AI_MODELS_AVAILABLE = False
 
+from fastapi_app.core.ai_fallback import (
+    leak_fixture_result,
+    normalize_recommendation_result,
+    recommendation_fixture_result,
+)
+from fastapi_app.core.data_quality import (
+    ModelAvailability,
+    build_water_intelligence_metadata,
+    newest_timestamp,
+    normalize_component,
+    utc_now,
+)
+from fastapi_app.core.demo_mode import should_use_fixture
 from fastapi_app.services.groundwater_metrics import enrich_groundwater_prediction
 from fastapi_app.services.leak_loss_estimator import enrich_leak_result, estimate_leak_loss
 from fastapi_app.services.prediction_store import persist_prediction
@@ -120,13 +133,30 @@ class ModelService:
                             "noisy day's change."
                         ),
                     }
+                beats = False
+                try:
+                    beats = bool(
+                        (self.shortage_model.load_model().get("metadata") or {})
+                        .get("baseline_comparison", {})
+                        .get("model_beats_persistence_baseline")
+                    )
+                except Exception:
+                    beats = False
                 return {
                     "predicted_risk_score": res.get("predicted_risk_score", 48.5),
                     "predicted_risk_stage": res.get("predicted_risk_stage", 1),
                     "risk_label": res.get("risk_label", "Moderate Risk (Stage 1)"),
+                    # Holdout-MAE-derived indicator — not a calibrated probability.
                     "confidence": res.get("confidence", 0.85),
                     "forecast_storage_pct": forecast,
                     "multi_horizon": multi_horizon,
+                    "technical_accuracy_note": res.get("technical_accuracy_note"),
+                    "model_scope": res.get("model_scope", "one-day reservoir storage forecast"),
+                    "evaluation": {
+                        "trained_horizon": "one_day",
+                        "multi_day_method": "extrapolated_heuristic" if multi_horizon else None,
+                        "beats_persistence_baseline": beats,
+                    },
                     "recommended_mitigation": res.get(
                         "recommended_mitigation",
                         "Review forecast storage and apply local operating rules before acting.",
@@ -161,7 +191,12 @@ class ModelService:
         if self.groundwater_model:
             try:
                 result = self.groundwater_model.predict(payload)
-                return enrich_groundwater_prediction(result)
+                enriched = enrich_groundwater_prediction(result)
+                if "evaluation" in result and "evaluation" not in enriched:
+                    enriched["evaluation"] = result["evaluation"]
+                elif result.get("evaluation"):
+                    enriched["evaluation"] = result["evaluation"]
+                return enriched
             except Exception as err:
                 print(f"[ModelService] Groundwater well model error: {err}")
         raise RuntimeError("CGWB groundwater model is unavailable; retrain with `py ai\\train.py`.")
@@ -198,6 +233,7 @@ class ModelService:
                     "confidence": res.get("confidence"),
                     "model_scope": res.get("model_scope"),
                     "test_mae_mgd": res.get("test_mae_mgd"),
+                    "evaluation": res.get("evaluation"),
                 }
             except Exception as err:
                 print(f"[ModelService] Demand model error: {err}")
@@ -238,19 +274,23 @@ class ModelService:
                     flow_velocity_m_s=flow_velocity_m_s,
                 )
             except Exception as err:
-                print(f"[ModelService] Leak model execution fallback: {err}")
+                print(f"[ModelService] Leak model execution fallback: {type(err).__name__}")
+                if should_use_fixture(provider_failed=True):
+                    return leak_fixture_result()
+                raise RuntimeError(
+                    "Legacy leak endpoint could not run. Upload a raw signal CSV via /detect-leak-signal."
+                ) from err
 
-        return {
-            "is_leak_detected": False,
-            "leak_probability": 0.0,
-            "severity": "Legacy endpoint not supported by acoustic classifier",
-            "note": "Use POST /detect-leak-signal with a raw signal CSV to use the trained model.",
-            "estimated_water_loss_lpm": 0.0,
-            "daily_loss_mld": 0.0,
-            "method": "heuristic_orifice",
-        }
+        if should_use_fixture(provider_failed=True):
+            return leak_fixture_result()
+        raise RuntimeError(
+            "Legacy leak endpoint is unavailable. Upload a raw signal CSV via /detect-leak-signal."
+        )
 
     def detect_leak_signal(self, signal_values: list) -> dict:
+        if should_use_fixture(provider_failed=False):
+            return leak_fixture_result()
+
         if self.leak_model:
             try:
                 result = self.leak_model.predict_from_csv(signal_values)
@@ -265,11 +305,25 @@ class ModelService:
                 # Keep classifier note; append loss caveat.
                 note = result.get("note") or ""
                 result["note"] = f"{note} Loss estimate: {loss['note']}".strip()
+                result["field_validation_status"] = "lab_trained_not_field_validated"
+                result["evaluation"] = {
+                    "decision_threshold": 0.3,
+                    "test_f1": result.get("test_f1"),
+                    "test_accuracy": result.get("test_accuracy"),
+                    "field_validation_status": "lab_trained_not_field_validated",
+                    "volume_from_classifier": False,
+                    "note": "Orifice L/min is a heuristic, not a learned volume label.",
+                }
                 return result
             except Exception as err:
-                print(f"[ModelService] Leak signal model error: {err}")
-                raise RuntimeError(str(err))
-        raise RuntimeError("Acoustic leak model is unavailable; retrain with `py ai\\train.py`.")
+                print(f"[ModelService] Leak signal model error: {type(err).__name__}")
+                if should_use_fixture(provider_failed=True):
+                    return leak_fixture_result()
+                raise RuntimeError("Acoustic leak classification failed.") from err
+
+        if should_use_fixture(provider_failed=True):
+            return leak_fixture_result()
+        raise RuntimeError("Acoustic leak model is unavailable. Retrain local model artifacts.")
 
     def generate_recommendations(
         self,
@@ -279,26 +333,52 @@ class ModelService:
         water_demand: dict,
         force_refresh: bool = False,
     ) -> dict:
-        if self.recommendation_engine:
-            return self.recommendation_engine.generate_recommendations(
-                water_shortage_prediction,
-                leak_detection,
-                groundwater_prediction,
-                water_demand,
-                force_refresh=force_refresh,
-            )
+        """Synthesize actions, degrading remote AI -> local rules -> demo fixture.
 
-        return {
-            "recommendations": [
-                "Review reservoir storage and apply local contingency rules.",
-                "Prioritize acoustic inspection on highest-loss corridors.",
-                "Throttle non-essential demand during heat-risk windows.",
-            ],
-            "expected_saving": "0.4 Million Liters",
-            "text_summary": "Apply shortage, leak, and demand contingency actions from model telemetry.",
-            "source": "rules_fallback",
-            "provider": "local-rules",
-        }
+        Whichever path answers, the envelope is identical and the provenance is
+        honest: `source` is always one of remote_ai / rules_fallback /
+        demo_fixture, and the metadata block always describes the path that
+        actually produced the text.
+        """
+        if should_use_fixture(provider_failed=False):
+            # Fixtures were deliberately forced: skip the provider entirely
+            # rather than spending its timeout before falling back.
+            return recommendation_fixture_result()
+
+        if self.recommendation_engine:
+            try:
+                raw = self.recommendation_engine.generate_recommendations(
+                    water_shortage_prediction,
+                    leak_detection,
+                    groundwater_prediction,
+                    water_demand,
+                    force_refresh=force_refresh,
+                )
+                return normalize_recommendation_result(raw)
+            except Exception as err:
+                print(f"[ModelService] Recommendation synthesis failed: {err}")
+
+        # The engine itself could not run (missing module, or it raised). Local
+        # rules need telemetry we may not have here, so fall through to the
+        # fixture only if demo mode authorizes it.
+        if should_use_fixture(provider_failed=True):
+            return recommendation_fixture_result()
+
+        return normalize_recommendation_result(
+            {
+                "recommendations": [
+                    "Review reservoir storage and apply local contingency rules.",
+                    "Prioritize acoustic inspection on highest-loss corridors.",
+                    "Throttle non-essential demand during heat-risk windows.",
+                ],
+                "expected_saving": "0.4 Million Liters",
+                "text_summary": (
+                    "Apply shortage, leak, and demand contingency actions from model telemetry."
+                ),
+                "source": "rules_fallback",
+                "provider": "local-rules",
+            }
+        )
 
     # ------------------------------------------------------------------
     # Live telemetry + water intelligence fusion
@@ -333,6 +413,9 @@ class ModelService:
             "rainfall_deficit_pct": 0.0,
             "temperature_c": 32.0,
             "heatwave_warning": False,
+            "observed_at": None,
+            # No Weather row yet — these are documented defaults, not readings.
+            "climate_source": "weather_defaults",
         }
         if weather:
             base = {
@@ -341,6 +424,8 @@ class ModelService:
                 "heatwave_warning": bool(weather.heatwave_warning),
                 "precipitation_mm": float(getattr(weather, "precipitation_mm", 0) or 0),
                 "location": getattr(weather, "location", None),
+                "observed_at": weather.recorded_at.isoformat() if weather.recorded_at else None,
+                "climate_source": "db_weather",
             }
 
         # Fuse live Open-Meteo SPI / deficit / heat into weather context for WSI.
@@ -358,9 +443,14 @@ class ModelService:
                 base["heatwave_warning"] = bool(om["heatwave_warning"])
             base["climate_source"] = om.get("source", "open_meteo_sync")
             base["spi_class"] = om.get("spi_class")
+            if base["climate_source"] == "open_meteo_sync":
+                # Open-Meteo returns the current forecast/archive window with no
+                # per-record stamp; the successful fetch time is the observation time.
+                base["observed_at"] = utc_now().isoformat()
         return base
 
-    def _latest_consumption_mgd(self, db) -> float:
+    def _latest_consumption(self, db) -> tuple[float, str | None]:
+        """Latest metered/seeded demand proxy with the date it was observed."""
         try:
             from fastapi_app.database.models import ConsumptionSeries
 
@@ -370,10 +460,14 @@ class ModelService:
                 .first()
             )
             if row and row.demand_mgd is not None:
-                return float(row.demand_mgd)
+                observed = row.observed_date.isoformat() if row.observed_date else None
+                return float(row.demand_mgd), observed
         except Exception:
             pass
-        return DEFAULT_DAILY_DEMAND_MGD
+        return DEFAULT_DAILY_DEMAND_MGD, None
+
+    def _latest_consumption_mgd(self, db) -> float:
+        return self._latest_consumption(db)[0]
 
     @staticmethod
     def _median(values: list[float], default: float) -> float:
@@ -403,6 +497,9 @@ class ModelService:
             round(100.0 * sum(1 for x in levels if x < 35.0) / len(levels), 1) if levels else 0.0
         )
 
+        observed_at = newest_timestamp(
+            [r.observed_at or r.updated_at for r in reservoirs]
+        )
         shortage = {
             "predicted_risk_score": 70.0 if capacity < 30 else (50.0 if capacity < 50 else 30.0),
             "predicted_risk_stage": 2 if capacity < 30 else (1 if capacity < 50 else 0),
@@ -412,6 +509,7 @@ class ModelService:
             "min_reservoir_pct": min_level,
             "pct_reservoirs_critical": pct_critical,
             "aggregation": "median_positive_storage",
+            "observed_at": observed_at,
         }
         demand_mgd = self._latest_consumption_mgd(db) if db is not None else DEFAULT_DAILY_DEMAND_MGD
         if self.shortage_model:
@@ -428,6 +526,7 @@ class ModelService:
                 shortage["min_reservoir_pct"] = min_level
                 shortage["pct_reservoirs_critical"] = pct_critical
                 shortage["aggregation"] = "median_positive_storage"
+                shortage["observed_at"] = observed_at
             except Exception as err:
                 print(f"[ModelService] live shortage predict skipped: {err}")
         return shortage, len(reservoirs)
@@ -449,6 +548,7 @@ class ModelService:
             leak["inferred_at"] = (
                 last_acoustic.created_at.isoformat() if last_acoustic.created_at else None
             )
+            leak["observed_at"] = leak["inferred_at"]
             return enrich_leak_result(leak), 1
 
         alerts = (
@@ -468,6 +568,7 @@ class ModelService:
             "source": "demo_seeded_alerts_muted_for_wsi",
             "demo": True,
             "demo_alert_count": len(alerts),
+            "observed_at": newest_timestamp([a.timestamp for a in alerts]),
             "note": (
                 "Seeded demo leak alerts are muted in the Water Stress Index so the score "
                 "is not artificially Critical. Upload an acoustic CSV on Leak Detection to "
@@ -497,6 +598,7 @@ class ModelService:
                 key=lambda a: abs(float(a.depth_to_water_m or depth) - depth),
             )
 
+        observed_at = newest_timestamp([a.observed_at or a.updated_at for a in aquifers])
         groundwater = {
             "projected_depth_m": depth,
             "drawdown_rate_m": rate,
@@ -504,6 +606,7 @@ class ModelService:
             "aquifer_status": (anchor.name if anchor else "median_sample"),
             "aggregation": "median_capped_rate",
             "max_observed_rate_m_year": max(rates) if rates else rate,
+            "observed_at": observed_at,
         }
         if self.groundwater_model and anchor is not None:
             try:
@@ -534,6 +637,7 @@ class ModelService:
                     "days_to_critical_threshold": gw.get("days_to_critical_threshold"),
                     "aggregation": "median_capped_rate",
                     "max_observed_rate_m_year": max(rates) if rates else rate,
+                    "observed_at": observed_at,
                 }
             except Exception as err:
                 print(f"[ModelService] live groundwater predict skipped: {err}")
@@ -541,11 +645,14 @@ class ModelService:
 
     def _live_demand(self, weather: dict[str, Any], db=None) -> dict[str, Any]:
         heatwave = bool(weather.get("heatwave_warning"))
-        baseline_mgd = self._latest_consumption_mgd(db) if db is not None else DEFAULT_DAILY_DEMAND_MGD
+        baseline_mgd, observed_at = (
+            self._latest_consumption(db) if db is not None else (DEFAULT_DAILY_DEMAND_MGD, None)
+        )
         demand = {
             "forecasted_demand_mgd": baseline_mgd,
             "peak_surge_risk": "Elevated Demand" if heatwave else "Normal Baseline",
             "model_scope": "synthetic_labels_pilot",
+            "observed_at": observed_at,
         }
         if self.demand_model:
             try:
@@ -558,6 +665,7 @@ class ModelService:
                 )
                 demand["baseline_consumption_mgd"] = baseline_mgd
                 demand["model_scope"] = demand.get("model_scope") or "synthetic_labels_pilot"
+                demand["observed_at"] = observed_at
             except Exception as err:
                 print(f"[ModelService] live demand predict skipped: {err}")
         return demand
@@ -614,8 +722,9 @@ class ModelService:
                 "dry_anomaly_pct": weather.get("dry_anomaly_pct"),
                 "temperature_c": weather.get("temperature_c", 32.0),
                 "heatwave_warning": weather.get("heatwave_warning", False),
-                "climate_source": weather.get("climate_source", "db_weather"),
+                "climate_source": weather.get("climate_source") or "weather_defaults",
                 "spi_class": weather.get("spi_class"),
+                "observed_at": weather.get("observed_at"),
             },
             "context": {
                 "reservoirs_sampled": n_res,
@@ -754,9 +863,20 @@ class ModelService:
                 if overrides.get("temperature_c") is not None
                 else weather.get("temperature_c") or 32.0
             ),
-            "climate_source": weather.get("climate_source", "db_weather"),
+            "climate_source": weather.get("climate_source") or "weather_defaults",
             "spi_class": weather.get("spi_class"),
+            "observed_at": weather.get("observed_at"),
         }
+
+        # Enforce the shared unit/range contract *before* fusion so an out-of-range
+        # or non-finite upstream value can never propagate into the index. Values
+        # already inside their contract pass through untouched.
+        issues: dict[str, list[str]] = {}
+        shortage, issues["shortage"] = normalize_component("shortage", shortage)
+        leak, issues["leak"] = normalize_component("leak", leak)
+        groundwater, issues["groundwater"] = normalize_component("groundwater", groundwater)
+        demand, issues["demand"] = normalize_component("demand", demand)
+        climate, issues["climate"] = normalize_component("climate", climate)
 
         wsi = compute_water_stress_index(
             shortage=shortage,
@@ -764,6 +884,23 @@ class ModelService:
             leak=leak,
             demand=demand,
             climate=climate,
+        )
+
+        metadata = build_water_intelligence_metadata(
+            water_stress=wsi,
+            shortage=shortage,
+            leak=leak,
+            groundwater=groundwater,
+            demand=demand,
+            climate=climate,
+            models=ModelAvailability(
+                shortage=self.shortage_model is not None,
+                groundwater=self.groundwater_model is not None,
+                demand=self.demand_model is not None,
+                leak=self.leak_model is not None,
+            ),
+            overrides=overrides,
+            issues=issues,
         )
 
         return {
@@ -774,6 +911,7 @@ class ModelService:
             "demand": demand,
             "climate": climate,
             "context": telemetry.get("context") or {},
+            "metadata": metadata,
         }
 
     def synthesize_live_recommendations(self, db, force_refresh: bool = False) -> dict:

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { StressScenario } from './types';
+import type { StressPreset, StressScenario } from './types';
 import { Button } from '../ui/Button';
 
 type Props = {
@@ -7,10 +7,11 @@ type Props = {
   onChange: (next: StressScenario) => void;
   onSimulate: () => void;
   onReset: () => void;
-  presets?: { id: string; label: string; scenario: StressScenario }[];
+  presets?: StressPreset[];
   onPreset: (id: string) => void;
   busy?: boolean;
   deltaVsBaseline?: number | null;
+  activePresetId?: string | null;
 };
 
 function Slider({
@@ -53,6 +54,7 @@ function Slider({
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={value}
+        aria-label={label}
       />
     </label>
   );
@@ -67,15 +69,21 @@ export const StressScenarioPanel: React.FC<Props> = ({
   onPreset,
   busy,
   deltaVsBaseline,
+  activePresetId,
 }) => {
   const set = (key: keyof StressScenario, value: number) => onChange({ ...scenario, [key]: value });
 
   return (
-    <section className="flex h-full flex-col rounded-[20px] border border-[var(--am-border)] bg-[var(--am-bg-elevated)] shadow-[var(--am-shadow-md)]">
+    <section
+      className="flex h-full flex-col rounded-[20px] border border-[var(--am-border)] bg-[var(--am-bg-elevated)] shadow-[var(--am-shadow-md)]"
+      aria-labelledby="scenario-sim-heading"
+    >
       <header className="border-b border-[var(--am-divider)] px-5 py-4">
-        <h3 className="text-[17px] font-semibold text-[var(--am-text)]">Scenario simulation</h3>
+        <h3 id="scenario-sim-heading" className="text-[17px] font-semibold text-[var(--am-text)]">
+          Scenario simulation
+        </h3>
         <p className="mt-0.5 text-[15px] text-[var(--am-text-secondary)]">
-          Premium what-if controls. Re-fuses upstream forecasts
+          What-if projections — not live observations. Re-fuses upstream forecasts.
         </p>
       </header>
 
@@ -93,25 +101,40 @@ export const StressScenarioPanel: React.FC<Props> = ({
           <p className="mb-2 text-[16px] font-semibold uppercase tracking-wide text-[var(--am-text-tertiary)]">
             What-if presets
           </p>
-          <div className="flex flex-col gap-1.5">
-            {presets.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => onPreset(p.id)}
-                disabled={busy}
-                className="rounded-[12px] border border-[var(--am-border)] bg-[var(--am-bg-muted)]/50 px-3 py-2.5 text-left text-[15px] font-medium text-[var(--am-text)] transition hover:bg-[var(--am-bg-hover)] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--am-accent)]"
-              >
-                {p.label}
-              </button>
-            ))}
+          <div className="flex flex-col gap-1.5" role="list">
+            {presets.map((p) => {
+              const active = activePresetId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  role="listitem"
+                  onClick={() => onPreset(p.id)}
+                  disabled={busy}
+                  aria-pressed={active}
+                  title={p.description || p.label}
+                  className={`rounded-[12px] border px-3 py-2.5 text-left text-[15px] font-medium transition disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--am-accent)] ${
+                    active
+                      ? 'border-[var(--am-accent)] bg-[var(--am-accent-soft)] text-[var(--am-accent)]'
+                      : 'border-[var(--am-border)] bg-[var(--am-bg-muted)]/50 text-[var(--am-text)] hover:bg-[var(--am-bg-hover)]'
+                  }`}
+                >
+                  <span className="block">{p.label}</span>
+                  {p.description ? (
+                    <span className="mt-0.5 block text-[13px] font-normal text-[var(--am-text-tertiary)]">
+                      {p.description}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
         </div>
       ) : null}
 
       <div className="mt-auto space-y-2 border-t border-[var(--am-divider)] px-5 py-4">
         {deltaVsBaseline != null ? (
-          <p className="text-[15px] text-[var(--am-text-secondary)]">
+          <p className="text-[15px] text-[var(--am-text-secondary)]" aria-live="polite">
             Δ vs baseline:{' '}
             <span className="tabular-nums font-semibold text-[var(--am-text)]">
               {deltaVsBaseline >= 0 ? '+' : ''}
@@ -120,10 +143,10 @@ export const StressScenarioPanel: React.FC<Props> = ({
           </p>
         ) : null}
         <div className="flex gap-2">
-          <Button className="flex-1" onClick={onSimulate} loading={busy}>
+          <Button className="flex-1" onClick={onSimulate} loading={busy} aria-label="Run scenario simulation">
             Run scenario
           </Button>
-          <Button variant="secondary" onClick={onReset} disabled={busy}>
+          <Button variant="secondary" onClick={onReset} disabled={busy} aria-label="Reset to baseline">
             Reset
           </Button>
         </div>

@@ -1,7 +1,12 @@
 {
+  "model_name": "groundwater_model",
+  "model_version": "pilot-cgwb-2000-2024",
   "model_type": "RandomForestRegressor",
+  "algorithm": "RandomForestRegressor",
   "task": "next observed groundwater level depth prediction",
-  "source": "Aqua Dataset\\Quality_controlled_groundwater_levels_over_India\\Input\\1_India_GWLs_2000_2024_wells_within_India.csv",
+  "target": "Water_Level",
+  "target_unit": "meters (depth to water)",
+  "target_definition": "Next observed water-table depth at the same CGWB station (positive = deeper).",
   "features": [
     "prev_observed_depth",
     "prev2_observed_depth",
@@ -13,11 +18,20 @@
     "Month_cos",
     "Well_Type_Encoded"
   ],
-  "target": "Water_Level",
+  "training_dataset": "CGWB quality-controlled groundwater levels over India (2000-2024 wells within India)",
+  "source": "Aqua Dataset/Quality_controlled_groundwater_levels_over_India/Input/1_India_GWLs_2000_2024_wells_within_India.csv",
+  "trained_at": "pilot-artifact",
+  "code_version_note": "Trained via ai/groundwater_model.py; regenerate with py ai/train.py",
+  "random_seed": 42,
+  "split_strategy": "chronological_by_year within station trajectories (train ≤2019, validation 2020-2022, test ≥2023); not a held-out geography split",
   "temporal_split": {
     "train_end_year": 2019,
     "validation_years": "2020-2022",
     "test_start_year": 2023
+  },
+  "evaluation_period": {
+    "validation": "2020-2022",
+    "test": "2023+"
   },
   "metrics": {
     "validation": {
@@ -33,9 +47,32 @@
       "rows": 50209
     }
   },
+  "baseline_comparison": {
+    "test_persistence_baseline": {
+      "method": "persistence (predicted Water_Level = prev_observed_depth)",
+      "metrics_embedded_at_retrain": true,
+      "note": "Exact persistence MAE/RMSE/R² are written when ai/groundwater_model.py trains. Evaluation charts compare model R² against this persistence baseline on held-out data."
+    },
+    "seasonal_naive": {
+      "status": "supported_at_retrain",
+      "method": "same calendar month in the prior year within station, when history exists"
+    },
+    "note": "Prefer test metrics (≥2023) over validation for deployment claims. Do not invent persistence MAE without a retrain."
+  },
+  "distribution_shift": {
+    "validation_r2": 0.8251,
+    "test_r2": 0.5176,
+    "note": "Lower test R² vs validation indicates temporal distribution shift across wells/years; local field validation is required before operational use."
+  },
+  "error_by_station": {
+    "status": "computed_at_retrain",
+    "note": "Per-station test MAE summary is written into metadata when training data is available."
+  },
   "limitations": [
     "Trained on historical CGWB well telemetry; local aquifer-specific conditions vary.",
     "Weather and rainfall variables are excluded due to lack of spatial matching at well locations.",
-    "Assumes well depth and well type remain constant over time."
+    "Assumes well depth and well type remain constant over time.",
+    "Split is temporal, not geographic — do not claim unseen-basin generalization.",
+    "Validation (2020-2022) is easier than test (≥2023); cite test metrics for honesty."
   ]
 }

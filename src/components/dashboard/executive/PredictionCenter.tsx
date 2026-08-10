@@ -19,9 +19,18 @@ export const PredictionCenter: React.FC<Props> = ({ cards }) => (
           key={c.id}
           className="flex flex-col rounded-[var(--am-radius-xl)] bg-[var(--am-bg-elevated)] p-4 shadow-[var(--am-shadow-md)] transition-shadow duration-200 hover:shadow-[var(--am-shadow-hover)]"
         >
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[16px] font-semibold text-[var(--am-text)]">{c.title}</h3>
-            <Badge tone={c.tone === 'neutral' ? 'accent' : c.tone}>{c.confidence}</Badge>
+          <div className="flex min-h-6 items-center gap-2">
+            <h3 className="min-w-0 flex-1 truncate text-[16px] font-semibold text-[var(--am-text)]">
+              {c.title}
+            </h3>
+          </div>
+          <div className="mt-1.5 flex min-h-[1.5rem] items-center">
+            <Badge
+              tone={c.tone === 'neutral' ? 'accent' : c.tone}
+              className="max-w-full truncate whitespace-nowrap text-[12px]"
+            >
+              {c.confidence}
+            </Badge>
           </div>
           <p className="mt-3 text-[22px] font-semibold tracking-[-0.02em] tabular-nums text-[var(--am-text)]">
             {c.current}

@@ -1,6 +1,13 @@
 {
+  "model_name": "leak_detection_model",
+  "model_version": "pilot-lab-acoustic-v1",
   "model_type": "ExtraTreesClassifier",
+  "algorithm": "ExtraTreesClassifier",
   "task": "binary acoustic leak / no-leak detection",
+  "target": "label (0=No-leak, 1=Leak)",
+  "target_unit": "binary class",
+  "target_definition": "Lab-labelled leak vs no-leak window from accelerometer recordings.",
+  "training_dataset": "Lab acoustic leak detection recordings (branched + looped topologies)",
   "source": "Aqua Dataset/Leak detection training data",
   "sensors": [
     "Accelerometer"
@@ -33,10 +40,17 @@
     "spectral_mid_energy",
     "spectral_high_energy"
   ],
-  "target": "label (0=No-leak, 1=Leak)",
   "decision_threshold": 0.3,
-  "split_method": "stratified file-level split + no-leak noise augmentation",
+  "trained_at": "pilot-artifact",
+  "code_version_note": "Trained via ai/leak_detection_model.py; regenerate with py ai/train.py",
+  "random_seed": 42,
   "split_seed": 42,
+  "split_strategy": "stratified file-level split (disjoint recording files) + no-leak noise augmentation on train only",
+  "split_method": "stratified file-level split + no-leak noise augmentation",
+  "evaluation_period": {
+    "note": "Lab recording set; not a field DMA evaluation window."
+  },
+  "field_validation_status": "lab_trained_not_field_validated",
   "metrics": {
     "validation": {
       "precision": 0.8696,
@@ -44,15 +58,10 @@
       "f1": 0.9302,
       "accuracy": 0.875,
       "confusion_matrix": [
-        [
-          4,
-          12
-        ],
-        [
-          0,
-          80
-        ]
+        [4, 12],
+        [0, 80]
       ],
+      "threshold": 0.3,
       "rows": 96
     },
     "test": {
@@ -61,20 +70,35 @@
       "f1": 0.8466,
       "accuracy": 0.7396,
       "confusion_matrix": [
-        [
-          2,
-          22
-        ],
-        [
-          3,
-          69
-        ]
+        [2, 22],
+        [3, 69]
       ],
+      "threshold": 0.3,
       "rows": 96
     }
   },
+  "baseline_comparison": {
+    "majority_class_baseline": {
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1": 0.8571,
+      "accuracy": 0.75,
+      "method": "always_predict_positive (majority class)",
+      "rows": 96,
+      "derived_from": "test confusion_matrix counts (not a separate labelled run)"
+    },
+    "model_beats_majority_f1": false,
+    "model_beats_majority_accuracy": false,
+    "note": "On this small held-out set the model F1 (0.8466) does not beat always-predict-leak F1 (0.8571). Treat as a lab pilot; field DMA validation is required."
+  },
+  "volume_prediction": {
+    "supported": false,
+    "note": "Classifier does not predict water volume. Any L/min figure is a disclosed orifice heuristic, not a learned label."
+  },
   "limitations": [
     "Trained on accelerometer lab recordings (branched and looped topologies).",
-    "No water-loss volume in training labels; volumetric estimates are not supported."
+    "No water-loss volume in training labels; volumetric estimates are not supported.",
+    "Lab-trained, not field-validated on DMA networks.",
+    "Small held-out population (96 windows); one misclassified file moves metrics noticeably."
   ]
 }

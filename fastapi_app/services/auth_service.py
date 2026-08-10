@@ -5,20 +5,39 @@ import bcrypt
 
 # Configuration
 _DEV_FALLBACK_SECRET = "development-only-change-before-deployment"
-SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+_PLACEHOLDER_SECRETS = frozenset(
+    {
+        "",
+        _DEV_FALLBACK_SECRET,
+        "replace-with-a-long-random-secret",
+        "changeme",
+        "secret",
+        "your-secret-here",
+    }
+)
 _ENVIRONMENT = os.getenv("AQUAMIND_ENVIRONMENT", "development").lower()
 
-if not SECRET_KEY:
-    if _ENVIRONMENT not in ("development", "test", "testing"):
-        raise RuntimeError(
-            "JWT_SECRET_KEY is not set. Refusing to start with the hardcoded "
-            "development fallback outside a development/test environment — "
-            "set JWT_SECRET_KEY to a long random secret in .env.local."
-        )
-    # Safe for local development only.
-    SECRET_KEY = _DEV_FALLBACK_SECRET
+
+def _resolve_jwt_secret() -> str:
+    raw = (os.getenv("JWT_SECRET_KEY") or "").strip()
+    if _ENVIRONMENT in ("staging", "production"):
+        if raw in _PLACEHOLDER_SECRETS or len(raw) < 32:
+            raise RuntimeError(
+                "JWT_SECRET_KEY must be a long random secret (≥32 chars) when "
+                f"AQUAMIND_ENVIRONMENT={_ENVIRONMENT!r}. Do not use the development "
+                "fallback or .env.example placeholders."
+            )
+        return raw
+    if raw in _PLACEHOLDER_SECRETS:
+        # Safe for local development / pytest only.
+        return _DEV_FALLBACK_SECRET
+    return raw
+
+
+SECRET_KEY = _resolve_jwt_secret()
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours
+
 
 class AuthService:
     @staticmethod
@@ -67,6 +86,6 @@ class AuthService:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             return payload
         except jwt.ExpiredSignatureError:
-            raise ValueError("Token signature has expired")
+            raise ValueError("Invalid or expired credentials")
         except jwt.InvalidTokenError:
-            raise ValueError("Invalid credentials token")
+            raise ValueError("Invalid or expired credentials")

@@ -199,7 +199,7 @@ export const SignupPage: React.FC = () => {
             disabled={isLoading}
             className="w-full py-2.5 rounded-xl bg-cyan-600 text-white font-bold text-[15px] hover:bg-cyan-500 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
           >
-            {isLoading ? 'Registering...' : 'Create Enterprise Account'}
+            {isLoading ? 'Registering...' : 'Create account'}
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>

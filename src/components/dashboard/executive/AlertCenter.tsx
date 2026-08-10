@@ -69,7 +69,7 @@ export const AlertCenter: React.FC<Props> = ({ alerts }) => {
                     <p className="text-[16px] font-semibold text-[var(--am-text)]">{a.locationName}</p>
                     <p className="mt-1 text-[15px] text-[var(--am-text-secondary)]">
                       Prediction: {a.detectedFlowDropPercent}% flow drop · anomaly {a.anomalyScore.toFixed(2)} · ~
-                      {a.estimatedWaterLossLpm.toFixed(0)} L/min loss
+                      {a.estimatedWaterLossLpm.toFixed(0)} L/min estimated water loss
                     </p>
                     <p className="mt-1 text-[15px] text-[var(--am-text-secondary)]">
                       Action: {a.aiDiagnostics || 'Dispatch field crew for acoustic verification.'}

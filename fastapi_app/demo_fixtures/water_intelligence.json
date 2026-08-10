@@ -1,0 +1,145 @@
+{
+  "_fixture": "Captured from GET /analytics/water-stress on a seeded database. Served only when AQUAMIND_DEMO_MODE=true and the live fusion is unavailable. observed_at values are fixed in the past so freshness derivation reports this as stale.",
+  "water_stress": {
+    "water_stress_index": 37.24,
+    "stage": "Moderate",
+    "components": {
+      "shortage": {
+        "score": 51.49,
+        "weight": 0.3,
+        "contribution": 15.45,
+        "detail": "Shortage risk score=51.5"
+      },
+      "groundwater": {
+        "score": 4.32,
+        "weight": 0.25,
+        "contribution": 1.08,
+        "detail": "Drawdown=0.12 m/yr, depth=4.2 m (Critical Drawdown)"
+      },
+      "leakage": {
+        "score": 55.0,
+        "weight": 0.2,
+        "contribution": 11.0,
+        "detail": "P(leak)=0.81, loss 17.0 L/min"
+      },
+      "demand": {
+        "score": 26.48,
+        "weight": 0.15,
+        "contribution": 3.97,
+        "detail": "Demand=56.8 MGD, surge=Normal Baseline"
+      },
+      "climate": {
+        "score": 57.46,
+        "weight": 0.1,
+        "contribution": 5.75,
+        "detail": "SPI-3 proxy=-1.18, rainfall stress 24.4%"
+      }
+    },
+    "weights": {
+      "shortage": 0.3,
+      "groundwater": 0.25,
+      "leakage": 0.2,
+      "demand": 0.15,
+      "climate": 0.1
+    },
+    "drivers": [
+      { "component": "shortage", "contribution": 15.45, "detail": "Shortage risk score=51.5" },
+      { "component": "leakage", "contribution": 11.0, "detail": "P(leak)=0.81, loss 17.0 L/min" },
+      { "component": "climate", "contribution": 5.75, "detail": "SPI-3 proxy=-1.18, rainfall stress 24.4%" }
+    ],
+    "data_sources": {
+      "shortage": "demo_fixture",
+      "groundwater": "demo_fixture",
+      "leakage": "demo_fixture",
+      "demand": "demo_fixture",
+      "climate": "demo_fixture"
+    },
+    "method": "weighted_multi_source_wsi_v1",
+    "note": "Captured demo fixture. Pilot composite index for operations prioritization, not a regulatory Water Stress Index substitute."
+  },
+  "shortage": {
+    "predicted_risk_score": 51.49,
+    "predicted_risk_stage": 1,
+    "risk_label": "Watch",
+    "confidence": 0.99,
+    "reservoir_capacity_pct": 50.0,
+    "min_reservoir_pct": 0.0,
+    "pct_reservoirs_critical": 28.6,
+    "aggregation": "median_positive_storage",
+    "observed_at": "2024-03-31T00:00:00+00:00",
+    "forecast_storage_pct": 49.83,
+    "multi_horizon": {
+      "day_1_storage_pct": 49.83,
+      "day_7_storage_pct": 49.23,
+      "day_30_storage_pct": 48.88,
+      "method": "damped_extrapolation_from_1day_rf_pilot",
+      "note": "Geometrically-damped extrapolation of the 1-day storage forecast, not independently trained horizons."
+    },
+    "recommended_mitigation": "Review the forecast storage percentage and apply local operating rules before acting."
+  },
+  "leak": {
+    "is_leak_detected": true,
+    "leak_probability": 0.8063,
+    "severity": "High anomaly detected",
+    "model_scope": "acoustic leak signal classifier",
+    "test_f1": 0.8466,
+    "test_accuracy": 0.7396,
+    "windows_scored": 8,
+    "note": "Captured demo fixture.",
+    "estimated_water_loss_lpm": 17.0,
+    "daily_loss_mld": 0.0245,
+    "loss_confidence": 0.4,
+    "loss_method": "heuristic_orifice",
+    "source": "demo_fixture",
+    "demo": true,
+    "inferred_at": "2026-07-30T18:50:49.268636+00:00",
+    "observed_at": "2026-07-30T18:50:49.268636+00:00",
+    "confidence": 0.4,
+    "method": "fallback"
+  },
+  "groundwater": {
+    "projected_depth_m": 4.19,
+    "drawdown_rate_m": 0.12,
+    "depletion_rate_m_year": 0.12,
+    "aquifer_status": "Critical Drawdown",
+    "depletion_trend": "Accelerating Depletion",
+    "days_to_critical_threshold": 108996.7,
+    "aggregation": "median_capped_rate",
+    "max_observed_rate_m_year": 4.03,
+    "observed_at": null,
+    "critical_depth_m": 40.0,
+    "metrics_note": "Depletion horizon is an indicative linear projection, not a hydrogeological simulation."
+  },
+  "demand": {
+    "forecasted_demand_mgd": 56.75,
+    "forecasted_demand_mld": 214.82,
+    "peak_surge_risk": "Normal Baseline",
+    "suggested_grid_allocation": "Allocate supply against forecasted demand and peak surge risk. Review with operations before dispatch.",
+    "peak_hour_demand_mgd": 76.61,
+    "climate_base_mgd": 65.13,
+    "confidence": 0.931,
+    "model_scope": "Municipal demand forecast (climate + calendar features)",
+    "test_mae_mgd": 3.101,
+    "baseline_consumption_mgd": 91.0,
+    "observed_at": "2026-07-26T00:00:00+00:00"
+  },
+  "climate": {
+    "rainfall_deficit_pct": -24.4,
+    "spi3_proxy": -1.18,
+    "dry_anomaly_pct": 24.4,
+    "heatwave_warning": false,
+    "temperature_c": 26.2,
+    "climate_source": "demo_fixture",
+    "spi_class": "moderately_dry",
+    "observed_at": "2026-07-30T06:00:00+00:00"
+  },
+  "context": {
+    "reservoirs_sampled": 119,
+    "aquifers_sampled": 80,
+    "active_alerts": 1,
+    "weather_temp_c": 26.2,
+    "leak_source": "demo_fixture",
+    "consumption_mgd": 91.0,
+    "aqualens_latest": null
+  }
+}

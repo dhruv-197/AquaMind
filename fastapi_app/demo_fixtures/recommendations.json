@@ -1,0 +1,11 @@
+{
+  "_fixture": "Stands in for /recommendation and /ai/recommendation-engine/live when the local rules engine cannot run at all (no telemetry) and AQUAMIND_DEMO_MODE=true. The rules fallback is preferred over this whenever telemetry is available.",
+  "recommendations": [
+    "Reservoir storage near 50% with Stage 1 shortage risk holding: trim municipal supply 10% and hold the contingency review at 45%.",
+    "Acoustic classifier flags a high-probability leak at ~17 L/min: dispatch a field crew to the highest-loss DMA corridor before the next demand peak.",
+    "Groundwater drawdown is accelerating at 0.12 m/yr on the monitored wells: cap non-essential aquifer pumping and reconcile abstraction permits this week.",
+    "Rainfall is 24% below normal (SPI-3 -1.18): move irrigation and tanker filling to off-peak night windows while the dry anomaly persists."
+  ],
+  "expected_saving": "24.5 Thousand Liters",
+  "text_summary": "Storage is near 50% with Stage 1 shortage risk holding, one high-probability leak is losing roughly 17 L/min, groundwater drawdown is accelerating, and rainfall is 24% below normal. Trim municipal supply 10%, dispatch a leak crew to the highest-loss corridor, cap non-essential pumping, and shift irrigation to off-peak windows."
+}

@@ -1,5 +1,5 @@
 /** Frontend API helpers for Reservoir Level Forecast (XGBoost production model). */
-import { apiGet, apiPost } from './apiClient';
+import { apiGet, apiPost, type ApiRequestInit } from './apiClient';
 import type { ForecastUnit, ReservoirWorkspaceData } from '../components/reservoir/types';
 
 export type ReservoirStatus = {
@@ -23,12 +23,12 @@ export type ReservoirMetricsResponse = {
   message: string;
 };
 
-export async function fetchReservoirStatus(): Promise<ReservoirStatus> {
-  return apiGet<ReservoirStatus>('/api/v1/predictions/reservoir/status');
+export async function fetchReservoirStatus(init?: ApiRequestInit): Promise<ReservoirStatus> {
+  return apiGet<ReservoirStatus>('/api/v1/predictions/reservoir/status', init);
 }
 
-export async function fetchReservoirMetrics(): Promise<ReservoirMetricsResponse> {
-  return apiGet<ReservoirMetricsResponse>('/api/v1/predictions/reservoir/metrics');
+export async function fetchReservoirMetrics(init?: ApiRequestInit): Promise<ReservoirMetricsResponse> {
+  return apiGet<ReservoirMetricsResponse>('/api/v1/predictions/reservoir/metrics', init);
 }
 
 export async function trainReservoirModel(body?: {

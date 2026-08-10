@@ -45,8 +45,18 @@ export type StressScenario = {
   reservoir_id?: string;
 };
 
+export type StressPreset = {
+  id: string;
+  label: string;
+  scenario: StressScenario;
+  category?: string;
+  description?: string;
+};
+
 export type StressWorkspaceData = {
   mode?: string;
+  generated_at?: string;
+  module_version?: string;
   region?: {
     region_id: string;
     name: string;
@@ -77,6 +87,12 @@ export type StressWorkspaceData = {
     delta_vs_baseline?: number;
   };
   components?: Record<string, { score: number; weight: number; contribution: number; detail: string }>;
+  baseline_components?: Record<
+    string,
+    { score: number; weight: number; contribution: number; detail: string }
+  > | null;
+  baseline_risk_label?: string | null;
+  baseline_expected_stress_date?: string | null;
   recommended_actions?: StressAction[];
   executive_insights?: string[];
   series?: StressSeriesPoint[];
@@ -94,7 +110,8 @@ export type StressWorkspaceData = {
   map_regions?: MapRegion[];
   scenario?: StressScenario;
   has_scenario?: boolean;
-  what_if_presets?: { id: string; label: string; scenario: StressScenario }[];
+  projection_disclaimer?: string | null;
+  what_if_presets?: StressPreset[];
   upstream_status?: { demand_trained?: boolean; reservoir_trained?: boolean };
   message?: string;
 };
@@ -114,6 +131,6 @@ export type StressStatus = {
     lng: number;
     reservoir_id?: string;
   }>;
-  what_if_presets: { id: string; label: string; scenario: StressScenario }[];
+  what_if_presets: StressPreset[];
   message: string;
 };

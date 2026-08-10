@@ -1,17 +1,21 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   StressCharts,
+  StressComparisonPanel,
   StressHeader,
   StressInsightsPanel,
   StressKpiCards,
   StressMap,
   StressScenarioPanel,
+  buildStressEvidenceReport,
   type StressScenario,
   type StressStatus,
   type StressWorkspaceData,
 } from '../components/stress';
 import { QuickSummary } from '../components/ui/QuickSummary';
+import { Button } from '../components/ui/Button';
+import { downloadText } from '../components/demand/utils';
 import {
   fetchStressStatus,
   predictStress,
@@ -33,7 +37,12 @@ function buildStressSummary(data: StressWorkspaceData | null): string[] {
   const population = data?.summary?.population_affected;
   const region = data?.region?.name;
 
-  if (current != null && predicted != null) {
+  if (data?.has_scenario && data.summary?.baseline_stress != null && predicted != null) {
+    const delta = predicted - data.summary.baseline_stress;
+    lines.push(
+      `${region ? `${region}: ` : ''}Scenario projects WSI ${predicted.toFixed(1)} vs baseline ${data.summary.baseline_stress.toFixed(1)} (${delta >= 0 ? '+' : ''}${delta.toFixed(1)}).`,
+    );
+  } else if (current != null && predicted != null) {
     const delta = predicted - current;
     if (Math.abs(delta) < 3) {
       lines.push(
@@ -49,7 +58,7 @@ function buildStressSummary(data: StressWorkspaceData | null): string[] {
       );
     }
   } else if (current != null) {
-    lines.push(`Current water stress score is ${current.toFixed(1)} (0-100 scale).`);
+    lines.push(`Current Water Stress Index is ${current.toFixed(1)} (0-100 scale).`);
   }
 
   if (risk === 'low' || risk === 'minimal' || risk === 'stable') {
@@ -80,9 +89,17 @@ export const WaterStressPage: React.FC = () => {
   const [data, setData] = useState<StressWorkspaceData | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [scenario, setScenario] = useState<StressScenario>(EMPTY_SCENARIO);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const cancelInFlight = () => {
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+    return abortRef.current.signal;
+  };
 
   const refreshStatus = useCallback(async () => {
     setLoading(true);
@@ -99,26 +116,34 @@ export const WaterStressPage: React.FC = () => {
 
   useEffect(() => {
     void refreshStatus();
+    return () => abortRef.current?.abort();
   }, [refreshStatus]);
 
   const runPredict = useCallback(
     async (regionId?: string | null) => {
       const rid = regionId ?? selectedId;
+      const signal = cancelInFlight();
       setBusy(true);
       setError('');
       try {
-        const res = await predictStress({
-          region_id: rid || undefined,
-          horizon_days: 30,
-          include_all_regions: true,
-        });
+        const res = await predictStress(
+          {
+            region_id: rid || undefined,
+            horizon_days: 30,
+            include_all_regions: true,
+          },
+          { signal },
+        );
+        if (signal.aborted) return;
         setData(res.data);
         if (res.data.region?.region_id) setSelectedId(res.data.region.region_id);
         setScenario(EMPTY_SCENARIO);
+        setActivePresetId('baseline');
       } catch (err) {
+        if (signal.aborted) return;
         setError(err instanceof Error ? err.message : 'Prediction failed');
       } finally {
-        setBusy(false);
+        if (!signal.aborted) setBusy(false);
       }
     },
     [selectedId],
@@ -132,37 +157,57 @@ export const WaterStressPage: React.FC = () => {
   }, [loading, selectedId]);
 
   const runSimulate = async () => {
+    const signal = cancelInFlight();
     setBusy(true);
     setError('');
+    setActivePresetId(null);
     try {
-      const res = await simulateStress({
-        region_id: selectedId || undefined,
-        horizon_days: 30,
-        scenario,
-      });
+      const res = await simulateStress(
+        {
+          region_id: selectedId || undefined,
+          horizon_days: 30,
+          scenario,
+        },
+        { signal },
+      );
+      if (signal.aborted) return;
       setData(res.data);
     } catch (err) {
+      if (signal.aborted) return;
       setError(err instanceof Error ? err.message : 'Simulation failed');
     } finally {
-      setBusy(false);
+      if (!signal.aborted) setBusy(false);
     }
   };
 
   const runPreset = async (presetId: string) => {
+    if (presetId === 'baseline') {
+      setScenario(EMPTY_SCENARIO);
+      setActivePresetId('baseline');
+      void runPredict();
+      return;
+    }
+    const signal = cancelInFlight();
     setBusy(true);
     setError('');
+    setActivePresetId(presetId);
     try {
-      const res = await simulateStress({
-        region_id: selectedId || undefined,
-        horizon_days: 30,
-        preset_id: presetId,
-      });
+      const res = await simulateStress(
+        {
+          region_id: selectedId || undefined,
+          horizon_days: 30,
+          preset_id: presetId,
+        },
+        { signal },
+      );
+      if (signal.aborted) return;
       setData(res.data);
       setScenario({ ...EMPTY_SCENARIO, ...(res.data.scenario || {}) });
     } catch (err) {
+      if (signal.aborted) return;
       setError(err instanceof Error ? err.message : 'Preset simulation failed');
     } finally {
-      setBusy(false);
+      if (!signal.aborted) setBusy(false);
     }
   };
 
@@ -173,6 +218,37 @@ export const WaterStressPage: React.FC = () => {
     },
     [runPredict],
   );
+
+  const exportEvidence = () => {
+    if (!data) return;
+    const text = buildStressEvidenceReport({
+      generatedAt: data.generated_at || new Date().toISOString(),
+      regionName: data.region?.name,
+      regionId: data.region?.region_id,
+      moduleVersion: status?.module_version || data.module_version,
+      hasScenario: Boolean(data.has_scenario),
+      projectionDisclaimer: data.projection_disclaimer,
+      baselineWsi: data.summary?.baseline_stress,
+      scenarioWsi: data.summary?.predicted_stress ?? data.water_stress_index,
+      baselineRisk: data.baseline_risk_label || data.summary?.risk_label,
+      scenarioRisk: data.risk_label || data.summary?.risk_label,
+      deltaVsBaseline: data.summary?.delta_vs_baseline,
+      expectedShortageDate: data.expected_stress_date || data.summary?.expected_shortage_date,
+      baselineExpectedShortageDate: data.baseline_expected_stress_date,
+      components: data.components,
+      baselineComponents: data.baseline_components,
+      actions: data.recommended_actions,
+      insights: data.executive_insights,
+      scenario: data.scenario as Record<string, number | string | undefined | null> | undefined,
+      demandEffect: data.components?.demand?.detail,
+      reservoirEffect: data.components?.reservoir?.detail,
+    });
+    downloadText(
+      `aquamind-stress-evidence-${data.region?.region_id || 'region'}-${Date.now()}.txt`,
+      text,
+      'text/plain;charset=utf-8',
+    );
+  };
 
   const upstream = data?.upstream_status;
   const demandTrained =
@@ -195,8 +271,30 @@ export const WaterStressPage: React.FC = () => {
         regionName={data?.region?.name}
       />
 
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-[14px] text-[var(--am-text-tertiary)]" aria-live="polite">
+          {data?.generated_at
+            ? `Fusion generated ${new Date(data.generated_at).toLocaleString()}`
+            : busy
+              ? 'Updating fusion…'
+              : 'Awaiting fusion run'}
+        </p>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={exportEvidence}
+          disabled={!data}
+          aria-label="Export water stress evidence brief"
+        >
+          Export evidence brief
+        </Button>
+      </div>
+
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[15px] text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+        <div
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[15px] text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+          role="alert"
+        >
           {error}
         </div>
       )}
@@ -228,7 +326,7 @@ export const WaterStressPage: React.FC = () => {
             <button
               type="button"
               onClick={() => void runPredict()}
-              className="rounded-lg border border-amber-300 px-4 py-2 text-[15px] font-semibold text-amber-950"
+              className="rounded-lg border border-amber-300 px-4 py-2 text-[15px] font-semibold text-amber-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600"
             >
               Run with placeholders
             </button>
@@ -242,7 +340,13 @@ export const WaterStressPage: React.FC = () => {
         onSelect={onSelectRegion}
       />
 
-      <StressKpiCards summary={data?.summary} riskLabel={data?.risk_label} />
+      <StressKpiCards
+        summary={data?.summary}
+        riskLabel={data?.risk_label}
+        series={data?.series}
+      />
+
+      <StressComparisonPanel data={data} />
 
       <div className="grid items-stretch gap-4 xl:grid-cols-12">
         <div className="xl:col-span-8 2xl:col-span-9">
@@ -260,12 +364,14 @@ export const WaterStressPage: React.FC = () => {
             onSimulate={() => void runSimulate()}
             onReset={() => {
               setScenario(EMPTY_SCENARIO);
+              setActivePresetId('baseline');
               void runPredict();
             }}
             presets={data?.what_if_presets || status?.what_if_presets}
             onPreset={(id) => void runPreset(id)}
             busy={busy}
             deltaVsBaseline={data?.summary?.delta_vs_baseline}
+            activePresetId={activePresetId}
           />
         </div>
       </div>
@@ -274,6 +380,12 @@ export const WaterStressPage: React.FC = () => {
         insights={data?.executive_insights}
         actions={data?.recommended_actions}
         components={data?.components}
+        baselineComponents={data?.baseline_components}
+        baselineWsi={data?.summary?.baseline_stress}
+        currentWsi={data?.summary?.predicted_stress ?? data?.water_stress_index}
+        generatedAt={data?.generated_at}
+        hasScenario={Boolean(data?.has_scenario)}
+        regionId={data?.region?.region_id}
       />
     </div>
   );

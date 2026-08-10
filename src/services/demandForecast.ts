@@ -1,5 +1,5 @@
 /** Frontend API helpers for Water Demand Forecast (XGBoost production model). */
-import { apiGet, apiPost } from './apiClient';
+import { apiGet, apiPost, type ApiRequestInit } from './apiClient';
 import type { DemandWorkspaceData, ForecastUnit } from '../components/demand/types';
 
 export type DemandStatus = {
@@ -24,12 +24,12 @@ export type DemandMetricsResponse = {
 
 export type DemandPredictData = DemandWorkspaceData;
 
-export async function fetchDemandStatus(): Promise<DemandStatus> {
-  return apiGet<DemandStatus>('/api/v1/predictions/demand/status');
+export async function fetchDemandStatus(init?: ApiRequestInit): Promise<DemandStatus> {
+  return apiGet<DemandStatus>('/api/v1/predictions/demand/status', init);
 }
 
-export async function fetchDemandMetrics(): Promise<DemandMetricsResponse> {
-  return apiGet<DemandMetricsResponse>('/api/v1/predictions/demand/metrics');
+export async function fetchDemandMetrics(init?: ApiRequestInit): Promise<DemandMetricsResponse> {
+  return apiGet<DemandMetricsResponse>('/api/v1/predictions/demand/metrics', init);
 }
 
 export async function trainDemandModel(body?: {
@@ -52,16 +52,23 @@ export async function trainDemandModel(body?: {
   });
 }
 
-export async function predictDemand(body: {
-  value: number;
-  unit: ForecastUnit;
-  capacity_mgd?: number;
-  include_history_days?: number;
-}): Promise<{ success: boolean; message: string; data: DemandPredictData }> {
-  return apiPost('/api/v1/predictions/demand/predict', {
-    value: body.value,
-    unit: body.unit,
-    capacity_mgd: body.capacity_mgd,
-    include_history_days: body.include_history_days ?? 365,
-  });
+export async function predictDemand(
+  body: {
+    value: number;
+    unit: ForecastUnit;
+    capacity_mgd?: number;
+    include_history_days?: number;
+  },
+  init?: ApiRequestInit
+): Promise<{ success: boolean; message: string; data: DemandPredictData }> {
+  return apiPost(
+    '/api/v1/predictions/demand/predict',
+    {
+      value: body.value,
+      unit: body.unit,
+      capacity_mgd: body.capacity_mgd,
+      include_history_days: body.include_history_days ?? 365,
+    },
+    init
+  );
 }

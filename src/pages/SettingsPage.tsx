@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GlassCard } from '../components/common/GlassCard';
 import { useTheme } from '../context/ThemeContext';
 import { FASTAPI_BASE } from '../config/api';
+import { ReadinessPanel } from '../components/settings/ReadinessPanel';
 import {
   Sliders,
   Key,
@@ -219,6 +220,8 @@ export const SettingsPage: React.FC = () => {
             </p>
           </div>
         </GlassCard>
+
+        <ReadinessPanel isLight={isLight} />
 
         <GlassCard className="md:col-span-2">
           <div

@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type { DecisionWorkspaceData } from './types';
+import type { DecisionWorkspaceData, StrategySide } from './types';
 import { SkeletonChart } from '../ui/Skeleton';
 import { EmptyState } from '../ui/EmptyState';
 
@@ -38,25 +38,26 @@ const tipStyle = {
 export const DecisionComparison: React.FC<Props> = ({ comparison, loading }) => {
   const chartData = useMemo(() => {
     if (!comparison) return [];
+    // Compare live system state (WSI / people at risk), not incremental action zeros.
     return [
       {
+        metric: 'WSI',
+        Baseline: comparison.current.projected_wsi ?? 0,
+        Optimized: comparison.optimized.projected_wsi ?? 0,
+      },
+      {
+        metric: 'Pop at risk (k)',
+        Baseline: (comparison.current.population_at_risk ?? 0) / 1000,
+        Optimized: (comparison.optimized.population_at_risk ?? 0) / 1000,
+      },
+      {
         metric: 'Water saved',
-        Current: comparison.current.water_saved_mcm,
+        Baseline: comparison.current.water_saved_mcm,
         Optimized: comparison.optimized.water_saved_mcm,
       },
       {
-        metric: 'Risk ↓',
-        Current: comparison.current.risk_reduction,
-        Optimized: comparison.optimized.risk_reduction,
-      },
-      {
-        metric: 'Pop (k)',
-        Current: comparison.current.population_protected / 1000,
-        Optimized: comparison.optimized.population_protected / 1000,
-      },
-      {
         metric: 'Cost (₹L)',
-        Current: comparison.current.estimated_cost_inr / 100_000,
+        Baseline: comparison.current.estimated_cost_inr / 100_000,
         Optimized: comparison.optimized.estimated_cost_inr / 100_000,
       },
     ];
@@ -69,7 +70,7 @@ export const DecisionComparison: React.FC<Props> = ({ comparison, loading }) => 
       <EmptyState
         className="min-h-[220px]"
         title="No comparison yet"
-        description="Run strategy comparison to see Current vs Optimized impact."
+        description="Run strategy comparison to see baseline vs optimized impact."
       />
     );
   }
@@ -82,18 +83,20 @@ export const DecisionComparison: React.FC<Props> = ({ comparison, loading }) => 
         <div>
           <h3 className="text-[17px] font-semibold text-[var(--am-text)]">Scenario comparison</h3>
           <p className="mt-0.5 text-[15px] text-[var(--am-text-secondary)]">
-            Current strategy vs optimized decision plan
+            Baseline (no new actions) vs ranked action plan
           </p>
         </div>
         <div className="flex flex-wrap gap-3 text-[14px] text-[var(--am-text-secondary)]">
           <span>
-            Δ water <strong className="tabular-nums text-[var(--am-text)]">{delta.water_saved_mcm.toFixed(1)} MCM</strong>
+            Δ water{' '}
+            <strong className="tabular-nums text-[var(--am-text)]">{delta.water_saved_mcm.toFixed(1)} MCM</strong>
           </span>
           <span>
             Δ risk <strong className="tabular-nums text-[var(--am-text)]">{delta.risk_reduction.toFixed(1)}</strong>
           </span>
           <span>
-            Δ pop <strong className="tabular-nums text-[var(--am-text)]">{delta.population_protected.toLocaleString()}</strong>
+            Δ pop{' '}
+            <strong className="tabular-nums text-[var(--am-text)]">{delta.population_protected.toLocaleString()}</strong>
           </span>
           <span>
             Cost <strong className="tabular-nums text-[var(--am-text)]">{formatInr(delta.estimated_cost_inr)}</strong>
@@ -125,9 +128,9 @@ export const DecisionComparison: React.FC<Props> = ({ comparison, loading }) => 
             />
             <Tooltip contentStyle={tipStyle} />
             <Legend />
-            <Bar dataKey="Current" fill="#8E8E93" radius={[6, 6, 0, 0]} maxBarSize={36} animationDuration={500}>
+            <Bar dataKey="Baseline" fill="#8E8E93" radius={[6, 6, 0, 0]} maxBarSize={36} animationDuration={500}>
               <LabelList
-                dataKey="Current"
+                dataKey="Baseline"
                 position="top"
                 formatter={(v: number) => v.toFixed(1)}
                 style={{ fontSize: 14, fill: 'var(--am-text-tertiary)' }}
@@ -145,8 +148,9 @@ export const DecisionComparison: React.FC<Props> = ({ comparison, loading }) => 
         </ResponsiveContainer>
       </div>
       <p className="mt-2 text-[14px] text-[var(--am-text-tertiary)]">
-        "Current" is the zero-intervention baseline. It shows 0 by definition (no new action taken), so every bar
-        is the full impact the optimized plan adds.
+        Why baseline water saved / cost show 0: that side means “take no new action,” so there is no
+        incremental savings or spend yet. WSI and population-at-risk show the live system if you stay
+        on current operations; the optimized bars show estimated plan impact.
       </p>
     </section>
   );
@@ -156,9 +160,10 @@ function StrategyCard({
   side,
   featured,
 }: {
-  side: NonNullable<DecisionWorkspaceData['scenario_comparison']>['current'];
+  side: StrategySide;
   featured: boolean;
 }) {
+  const isBaseline = !featured;
   return (
     <div
       className={`rounded-[16px] border p-4 ${
@@ -171,21 +176,61 @@ function StrategyCard({
       <p className="mt-1 text-[15px] text-[var(--am-text-secondary)]">{side.description}</p>
       <dl className="mt-3 grid grid-cols-2 gap-2 text-[15px]">
         <div>
-          <dt className="text-[var(--am-text-tertiary)]">Water saved</dt>
-          <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">{side.water_saved_mcm.toFixed(1)} MCM</dd>
+          <dt className="text-[var(--am-text-tertiary)]">Projected WSI</dt>
+          <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">
+            {side.projected_wsi != null ? side.projected_wsi.toFixed(1) : '—'}
+          </dd>
         </div>
         <div>
-          <dt className="text-[var(--am-text-tertiary)]">Risk reduction</dt>
-          <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">{side.risk_reduction.toFixed(1)}</dd>
+          <dt className="text-[var(--am-text-tertiary)]">Risk stage</dt>
+          <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">{side.risk_label || '—'}</dd>
         </div>
-        <div>
-          <dt className="text-[var(--am-text-tertiary)]">Population</dt>
-          <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">{side.population_protected.toLocaleString()}</dd>
-        </div>
-        <div>
-          <dt className="text-[var(--am-text-tertiary)]">Cost</dt>
-          <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">{formatInr(side.estimated_cost_inr)}</dd>
-        </div>
+        {isBaseline ? (
+          <>
+            <div>
+              <dt className="text-[var(--am-text-tertiary)]">Population at risk</dt>
+              <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">
+                {(side.population_at_risk ?? 0).toLocaleString()}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--am-text-tertiary)]">Storage</dt>
+              <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">
+                {side.projected_storage_pct != null ? `${side.projected_storage_pct.toFixed(0)}%` : '—'}
+              </dd>
+            </div>
+            <div className="col-span-2 rounded-[10px] bg-[var(--am-bg-elevated)]/70 px-2.5 py-2 text-[13px] text-[var(--am-text-tertiary)]">
+              New-action impact: water saved 0 · cost ₹0 (no interventions queued)
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <dt className="text-[var(--am-text-tertiary)]">Water saved</dt>
+              <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">
+                {side.water_saved_mcm.toFixed(1)} MCM
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--am-text-tertiary)]">Risk reduction</dt>
+              <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">
+                {side.risk_reduction.toFixed(1)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--am-text-tertiary)]">Population protected</dt>
+              <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">
+                {side.population_protected.toLocaleString()}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--am-text-tertiary)]">Cost</dt>
+              <dd className="mt-0.5 font-semibold tabular-nums text-[var(--am-text)]">
+                {formatInr(side.estimated_cost_inr)}
+              </dd>
+            </div>
+          </>
+        )}
       </dl>
     </div>
   );

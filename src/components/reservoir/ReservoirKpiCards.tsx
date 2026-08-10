@@ -1,7 +1,8 @@
 import React from 'react';
-import type { ForecastUnit, ReservoirSummaryData } from './types';
+import type { ForecastUnit, ReservoirSummaryData, SeriesPoint } from './types';
 import { formatPct } from '../demand/utils';
 import { KpiCard } from '../ui/KpiCard';
+import { sparklineFrom } from '../ui/sparkline';
 import { riskTone } from '../../design-system/tokens';
 
 type Props = {
@@ -15,6 +16,8 @@ type Props = {
   summary?: ReservoirSummaryData | null;
   horizonValue?: number;
   horizonUnit?: ForecastUnit;
+  /** Storage series backing the sparklines. Absent series means no sparkline. */
+  series?: SeriesPoint[] | null;
 };
 
 export const ReservoirKpiCards: React.FC<Props> = ({
@@ -26,10 +29,17 @@ export const ReservoirKpiCards: React.FC<Props> = ({
   confidence,
   risk,
   summary,
+  series,
 }) => {
   const days = remainingDays ?? summary?.remaining_days ?? summary?.days_to_critical;
   const riskLabel = risk || summary?.risk_label;
   const conf = confidence ?? summary?.confidence;
+
+  // Charted from the returned storage series only — never padded with
+  // placeholder points that would imply a decline we did not observe.
+  const observedSpark = sparklineFrom(series, 'historical');
+  const forecastSpark = sparklineFrom(series, 'forecast');
+  const confidenceSpark = sparklineFrom(series, 'confidence');
 
   return (
     <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
@@ -38,9 +48,8 @@ export const ReservoirKpiCards: React.FC<Props> = ({
         value={formatPct(currentStorage ?? summary?.current_storage_pct, 1)}
         subtitle="Observed level"
         tooltip="Latest observed reservoir storage as a percentage of total capacity."
-        comparison="vs prior reading"
         accent="blue"
-        sparkline={[55, 54, 53, 52, 51, currentStorage ?? 50]}
+        sparkline={observedSpark}
       />
       <KpiCard
         label="Forecasted storage"
@@ -52,7 +61,7 @@ export const ReservoirKpiCards: React.FC<Props> = ({
         }
         tooltip="Predicted storage level at the end of the selected forecast range."
         accent="violet"
-        sparkline={[52, 50, 48, 47, 46, forecastedStorage ?? 45]}
+        sparkline={forecastSpark}
       />
       <KpiCard
         label="Remaining days"
@@ -95,7 +104,7 @@ export const ReservoirKpiCards: React.FC<Props> = ({
         tooltip="How confident the model is in this storage forecast based on data quality and ensemble agreement."
         comparison="ensemble"
         accent="green"
-        sparkline={[0.7, 0.72, 0.74, 0.73, 0.76, conf ?? 0.78]}
+        sparkline={confidenceSpark}
       />
     </section>
   );

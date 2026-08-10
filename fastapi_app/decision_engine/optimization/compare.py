@@ -1,4 +1,4 @@
-"""Current vs Optimized strategy comparison."""
+"""Current vs recommended strategy comparison (estimates, not guarantees)."""
 from __future__ import annotations
 
 from typing import Any
@@ -14,7 +14,13 @@ def build_strategy_comparison(
 ) -> dict[str, Any]:
     """
     Current strategy = status quo (no new interventions).
-    Optimized strategy = implement top ranked actions.
+    Recommended strategy = implement top ranked actions (constraint-aware plan).
+    Projected figures are estimated impact, not guaranteed savings.
+
+    Impact fields (water saved, risk reduction, population protected, cost) are
+    intentionally 0 for "current" — that side means "do nothing new", so there
+    is no incremental action impact yet. Live system state is carried in
+    projected_wsi / risk_label / population_at_risk / projected_storage_pct.
     """
     agg = max(0.5, min(1.5, float(aggressiveness)))
 
@@ -51,8 +57,11 @@ def build_strategy_comparison(
 
     current = {
         "strategy": "current",
-        "label": "Current Strategy",
-        "description": "Maintain existing operating rules without new interventions.",
+        "label": "Do nothing (baseline)",
+        "description": (
+            "No new interventions. Incremental action impact is 0 by definition — "
+            "WSI / risk below show the live system state if you stay on current ops."
+        ),
         "water_saved_mcm": 0.0,
         "risk_reduction": 0.0,
         "population_protected": 0,
@@ -65,8 +74,11 @@ def build_strategy_comparison(
     }
     optimized = {
         "strategy": "optimized",
-        "label": "Optimized Strategy",
-        "description": f"Implement top {len(optimized_actions)} ranked operational decisions.",
+        "label": "Ranked Action Plan",
+        "description": (
+            f"Constraint-aware recommendation: implement the top {len(optimized_actions)} "
+            "ranked interventions. Figures are estimated impact, not guaranteed savings."
+        ),
         "water_saved_mcm": round(water_saved, 2),
         "risk_reduction": round(risk_reduction, 2),
         "population_protected": int(pop_protected),
@@ -93,6 +105,7 @@ def build_strategy_comparison(
         "demand_peak_mgd": (demand or {}).get("today_predicted_demand_mgd")
         or ((demand or {}).get("summary") or {}).get("predicted_peak_demand_mgd"),
         "aggressiveness": agg,
+        "disclaimer": "Estimated impact from a ranked action plan — not a mathematically optimal or guaranteed outcome.",
     }
 
 

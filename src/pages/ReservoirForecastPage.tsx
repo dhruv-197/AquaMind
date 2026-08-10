@@ -353,6 +353,7 @@ export const ReservoirForecastPage: React.FC = () => {
             summary={data?.summary}
             horizonValue={activeHorizonValue}
             horizonUnit={activeHorizonUnit}
+            series={data?.series}
           />
 
           <ForecastControls

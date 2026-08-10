@@ -86,34 +86,115 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;');
 }
 
+function titleCase(value: string): string {
+  return value
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function metadataText(asset: WaterAsset, key: string): string | null {
+  const value = asset.meta?.[key];
+  if (typeof value === 'string' && value.trim()) return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return null;
+}
+
+function popupRows(asset: WaterAsset): Array<[string, string]> {
+  const confidence =
+    asset.confidence != null ? `${Math.round(asset.confidence * 100)}%` : null;
+  const rows: Array<[string, string | null]> = [
+    ['Status', titleCase(asset.risk_level || 'Not assessed')],
+  ];
+
+  switch (asset.type) {
+    case 'reservoir':
+      rows.push(
+        [
+          'Current storage',
+          asset.current_storage_pct != null
+            ? `${asset.current_storage_pct.toFixed(1)}%`
+            : null,
+        ],
+        [
+          'Predicted storage',
+          asset.forecast_storage_pct != null
+            ? `${asset.forecast_storage_pct.toFixed(1)}%`
+            : null,
+        ],
+        [
+          'Capacity',
+          asset.capacity_mcm != null
+            ? `${asset.capacity_mcm.toLocaleString()} MCM`
+            : null,
+        ],
+      );
+      break;
+    case 'groundwater_station': {
+      const depth = metadataText(asset, 'depth_to_water_m');
+      rows.push(['Depth to water', depth ? `${depth} m` : null]);
+      break;
+    }
+    case 'dam':
+      rows.push(['Linked reservoir', metadataText(asset, 'parent_reservoir_id')]);
+      break;
+    case 'demand_region':
+      rows.push([
+        'Region type',
+        metadataText(asset, 'region_kind')
+          ? titleCase(metadataText(asset, 'region_kind')!)
+          : null,
+      ]);
+      break;
+    case 'water_stress_region':
+      rows.push(['Monitoring layer', 'Water stress']);
+      break;
+    case 'leak_zone':
+      rows.push([
+        'Monitoring',
+        metadataText(asset, 'monitoring')
+          ? titleCase(metadataText(asset, 'monitoring')!)
+          : null,
+      ]);
+      break;
+  }
+
+  rows.push(['Confidence', confidence]);
+
+  if (asset.last_updated) {
+    const updated = new Date(asset.last_updated);
+    rows.push([
+      'Updated',
+      Number.isNaN(updated.getTime())
+        ? asset.last_updated
+        : updated.toLocaleDateString(undefined, {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          }),
+    ]);
+  }
+
+  return rows.filter((row): row is [string, string] => row[1] != null);
+}
+
 function buildPopupHtml(asset: WaterAsset): string {
-  const conf =
-    asset.confidence != null ? `${Math.round(asset.confidence * 100)}%` : '-';
-  const current =
-    asset.current_storage_pct != null
-      ? `${asset.current_storage_pct.toFixed(1)}%`
-      : '-';
-  const predicted =
-    asset.forecast_storage_pct != null
-      ? `${asset.forecast_storage_pct.toFixed(1)}%`
-      : '-';
-  const status = escapeHtml((asset.risk_level || 'n/a').toUpperCase());
-  const cap =
-    asset.capacity_mcm != null ? `${asset.capacity_mcm.toLocaleString()} MCM` : '-';
   const name = escapeHtml(asset.name || '');
   const state = escapeHtml(asset.state || '');
-  const type = escapeHtml(asset.type.replace(/_/g, ' '));
+  const type = escapeHtml(titleCase(asset.type));
+  const details = popupRows(asset)
+    .map(
+      ([label, value]) =>
+        `<div style="display:flex;justify-content:space-between;gap:16px">
+          <span style="color:#8E8E93">${escapeHtml(label)}</span>
+          <b style="text-align:right">${escapeHtml(value)}</b>
+        </div>`,
+    )
+    .join('');
 
-  return `<div style="font:12px/1.45 -apple-system,BlinkMacSystemFont,'SF Pro Text',Segoe UI,sans-serif;min-width:180px;color:#1D1D1F">
+  return `<div style="font:12px/1.45 -apple-system,BlinkMacSystemFont,'SF Pro Text',Segoe UI,sans-serif;min-width:210px;color:inherit">
     <strong style="font-size:13px">${name}</strong>
     <div style="margin-top:4px;color:#6E6E73">${state} · ${type}</div>
-    <div style="margin-top:8px;display:grid;gap:4px">
-      <div><span style="color:#8E8E93">Status</span> · <b>${status}</b></div>
-      <div><span style="color:#8E8E93">Current</span> · <b>${current}</b></div>
-      <div><span style="color:#8E8E93">Predicted</span> · <b>${predicted}</b></div>
-      <div><span style="color:#8E8E93">Confidence</span> · <b>${conf}</b></div>
-      <div><span style="color:#8E8E93">Capacity</span> · <b>${cap}</b></div>
-    </div>
+    <div style="margin-top:8px;display:grid;gap:5px">${details}</div>
   </div>`;
 }
 
@@ -182,6 +263,9 @@ function ClusterLayer({
       marker.bindPopup(buildPopupHtml(asset), {
         maxWidth: 280,
         autoPan: true,
+        autoPanPaddingTopLeft: L.point(24, 24),
+        autoPanPaddingBottomRight: L.point(24, 24),
+        keepInView: true,
         closeOnClick: false,
         autoClose: false,
       });

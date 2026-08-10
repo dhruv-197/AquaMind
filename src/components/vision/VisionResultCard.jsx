@@ -212,7 +212,12 @@ export const VisionResultCard = ({ result, originalPreview }) => {
         </div>
       </div>
 
-      {comparison ? (
+      {comparison && comparison.comparable === false ? (
+        <div className="rounded-[16px] border border-[var(--am-warning)]/30 bg-[var(--am-warning-soft)] p-4 text-[16px] text-[var(--am-warning)]" role="status">
+          <p className="font-semibold">{comparison.warning || 'Comparison unavailable'}</p>
+          {comparison.note ? <p className="mt-1 opacity-90">{sanitizeVendorCopy(comparison.note)}</p> : null}
+        </div>
+      ) : comparison && comparison.comparable !== false ? (
         <div
           className={`flex items-start gap-3 rounded-[16px] border p-4 text-[16px] ${
             comparison.trend === 'improving'
@@ -235,6 +240,14 @@ export const VisionResultCard = ({ result, originalPreview }) => {
                 ? `Health ${healthDelta > 0 ? '+' : ''}${healthDelta} vs previous scan (${comparison.trend})`
                 : `Trend: ${comparison.trend}`}
             </p>
+            {comparison.previous_analyzed_at ? (
+              <p className="mt-1 text-[14px] opacity-90">
+                Previous scan: {new Date(comparison.previous_analyzed_at).toLocaleString()}
+                {comparison.previous_confidence != null
+                  ? ` · confidence ${Math.round(Number(comparison.previous_confidence) * (comparison.previous_confidence <= 1 ? 100 : 1))}%`
+                  : ''}
+              </p>
+            ) : null}
             {comparison.note ? (
               <p className="mt-1 opacity-90">{sanitizeVendorCopy(comparison.note)}</p>
             ) : null}
@@ -245,7 +258,11 @@ export const VisionResultCard = ({ result, originalPreview }) => {
           First recorded scan for <strong>{assetLabel}</strong>. Future uploads with this label will show
           percentage change here.
         </div>
-      ) : null}
+      ) : (
+        <div className="rounded-[16px] border border-[var(--am-border)] bg-[var(--am-bg-muted)]/50 p-4 text-[16px] text-[var(--am-text-secondary)]">
+          Before/after comparison needs a matching site label on both scans. This upload is analyzed on its own.
+        </div>
+      )}
 
       {changeCards.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

@@ -15,14 +15,25 @@ from fastapi_app.database.connection import get_db
 from fastapi_app.database.models import User
 from fastapi_app.services.auth_service import AuthService
 
-security = HTTPBearer()
+# auto_error=False so missing Authorization yields a consistent 401 (not 403).
+security = HTTPBearer(auto_error=False)
+
+_AUTH_REQUIRED = "Authentication required"
+_INVALID_CREDENTIALS = "Invalid or expired credentials"
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
     """Validate the JWT bearer token and return the authenticated user."""
+    if credentials is None or not credentials.credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=_AUTH_REQUIRED,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     token = credentials.credentials
     try:
         payload = AuthService.decode_access_token(token)
@@ -30,16 +41,22 @@ def get_current_user(
         if not email:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token is missing subject identifier",
+                detail=_INVALID_CREDENTIALS,
+                headers={"WWW-Authenticate": "Bearer"},
             )
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=_INVALID_CREDENTIALS,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found in system",
+            detail=_INVALID_CREDENTIALS,
+            headers={"WWW-Authenticate": "Bearer"},
         )
     return user
 
@@ -52,7 +69,7 @@ class RoleChecker:
         if current_user.role not in self.allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required roles: {', '.join(self.allowed_roles)}. Your role: {current_user.role}",
+                detail="Access denied.",
             )
         return current_user
 

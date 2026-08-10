@@ -42,7 +42,8 @@ export type ExecutiveKpi = {
   value: string;
   forecast?: string;
   tooltip?: string;
-  trend: { direction: 'up' | 'down' | 'flat'; label: string };
+  /** Omitted when no measured comparison exists — never a placeholder direction. */
+  trend?: { direction: 'up' | 'down' | 'flat'; label: string };
   status: { label: string; tone: RiskTone };
   sparkline: number[];
 };
@@ -151,7 +152,13 @@ export function sparkAround(base: number, seed = 1, points = 8): number[] {
   return out;
 }
 
-export function securityScoreFrom(wsi?: number | null, avgStorage?: number, criticalAlerts = 0): number {
+export function securityScoreFrom(
+  wsi?: number | null,
+  avgStorage?: number | null,
+  criticalAlerts = 0
+): number {
+  // Callers must pass measured values; missing inputs use neutral mid-band only
+  // when the feed itself succeeded with sparse data — not on transport failure.
   const stress = wsi ?? 50;
   const storagePart = Math.min(100, Math.max(0, avgStorage ?? 50));
   const alertPenalty = Math.min(25, criticalAlerts * 5);
@@ -166,6 +173,49 @@ export function municipalStatus(score: number): { label: string; tone: RiskTone 
   return { label: 'Critical', tone: 'danger' };
 }
 
+/** Which upstream feed each KPI reads, so a failed feed shows "-" not a zero. */
+const KPI_SOURCE: Record<string, KpiFeed> = {
+  demand: 'waterStress',
+  'forecast-demand': 'waterStress',
+  wsi: 'waterStress',
+  reservoir: 'shortageRisks',
+  'critical-res': 'shortageRisks',
+  leak: 'alerts',
+  gw: 'aquifers',
+  weather: 'weather',
+  // Population blends stress context with reservoir/alert severity — gate on stress.
+  population: 'waterStress',
+};
+
+export type KpiFeed = 'shortageRisks' | 'alerts' | 'aquifers' | 'weather' | 'waterStress';
+
+/** Feeds that have not resolved yet, and why. Absent entries are treated as loaded. */
+export type UnavailableSources = Partial<Record<KpiFeed, 'loading' | 'error' | undefined>>;
+
+/**
+ * Replace the value of any KPI whose feed has not delivered.
+ *
+ * An unreachable reservoir endpoint must not render as "0.0% storage" — that
+ * reads as a measured emergency — and a feed still in flight must not look like
+ * a settled reading either.
+ */
+function applyFeedState(kpis: ExecutiveKpi[], feeds?: UnavailableSources): ExecutiveKpi[] {
+  if (!feeds) return kpis;
+  return kpis.map((kpi) => {
+    const state = feeds[KPI_SOURCE[kpi.id]];
+    if (!state) return kpi;
+    const loading = state === 'loading';
+    return {
+      ...kpi,
+      value: loading ? '—' : '-',
+      forecast: loading ? 'Loading...' : 'Unavailable',
+      trend: { direction: 'flat', label: loading ? 'Updating' : 'No data' },
+      status: { label: loading ? 'Loading' : 'Unavailable', tone: 'neutral' },
+      sparkline: [],
+    };
+  });
+}
+
 export function deriveExecutiveKpis(input: {
   shortageRisks: ApiShortageRisk[];
   alerts: ApiAlert[];
@@ -175,12 +225,15 @@ export function deriveExecutiveKpis(input: {
   demandMgd?: number | null;
   forecastDemandMgd?: number | null;
   populationAtRisk?: number | null;
+  /** Real demand series (historical + forecast) backing the demand sparklines. */
+  demandSeries?: Array<{ label: string; value: number }>;
+  unavailable?: UnavailableSources;
 }): ExecutiveKpi[] {
   const { shortageRisks, alerts, aquifers, weather, waterStress } = input;
   const avgStorage =
     shortageRisks.length > 0
       ? shortageRisks.reduce((s, r) => s + r.currentLevel, 0) / shortageRisks.length
-      : 0;
+      : null;
   const criticalRes = shortageRisks.filter((r) => r.severity === 'critical').length;
   const wsi = waterStress?.water_stress?.water_stress_index ?? null;
   const stage = waterStress?.water_stress?.stage || 'n/a';
@@ -205,71 +258,123 @@ export function deriveExecutiveKpis(input: {
           : typeof waterStress?.demand?.baseline_consumption_mgd === 'number'
             ? (waterStress.demand.baseline_consumption_mgd as number)
             : null);
-  const forecastDemand = input.forecastDemandMgd ?? (demand != null ? demand * 1.04 : null);
+  // Only a real forecast feed populates this. The previous `demand * 1.04`
+  // fallback rendered an invented 4% rise as a "Predicted Demand" reading.
+  const forecastDemand = input.forecastDemandMgd ?? null;
+  // Percentage move from the current reading to the forecast, when we hold both.
+  const demandDeltaPct =
+    demand != null && forecastDemand != null && demand !== 0
+      ? ((forecastDemand - demand) / demand) * 100
+      : null;
+  const demandTrend: ExecutiveKpi['trend'] =
+    demandDeltaPct == null
+      ? undefined
+      : {
+          direction: demandDeltaPct > 0.5 ? 'up' : demandDeltaPct < -0.5 ? 'down' : 'flat',
+          label: `${demandDeltaPct >= 0 ? '+' : ''}${demandDeltaPct.toFixed(1)}% current to forecast`,
+        };
+  // A KPI sparkline is a claim about history, so it is drawn from the demand
+  // series when one arrived and left empty otherwise.
+  const demandSpark = (input.demandSeries ?? [])
+    .map((p) => p.value)
+    .filter((v) => typeof v === 'number' && Number.isFinite(v));
+  const demandSparkline = demandSpark.length >= 2 ? demandSpark : [];
+  const hasPopulationContext =
+    typeof waterStress?.context?.population_at_risk === 'number' ||
+    shortageRisks.length > 0 ||
+    alerts.length > 0;
   const popAtRisk =
     input.populationAtRisk ??
     (typeof waterStress?.context?.population_at_risk === 'number'
       ? (waterStress.context.population_at_risk as number)
-      : criticalRes * 120_000 + activeLeaks * 8_000);
+      : hasPopulationContext
+        ? criticalRes * 120_000 + activeLeaks * 8_000
+        : null);
 
-  const resHealth = avgStorage >= 60 ? 'Healthy' : avgStorage >= 40 ? 'Moderate' : 'Critical';
+  const resHealth =
+    avgStorage == null ? 'Unavailable' : avgStorage >= 60 ? 'Healthy' : avgStorage >= 40 ? 'Moderate' : 'Critical';
 
-  return [
+  return applyFeedState([
     {
       id: 'demand',
       label: 'Current Demand',
       value: demand == null ? '-' : `${Number(demand).toFixed(1)} MGD`,
       forecast: forecastDemand == null ? undefined : `${Number(forecastDemand).toFixed(1)} MGD`,
       tooltip: 'Water demand right now across the monitored system.',
-      trend: { direction: 'up', label: '+3.8% vs 7d' },
+      trend: demandTrend,
       status: { label: demand && demand > 90 ? 'High' : 'Normal', tone: demand && demand > 90 ? 'warning' : 'success' },
-      sparkline: sparkAround(demand ?? 70, 11),
+      sparkline: demandSparkline,
     },
     {
       id: 'forecast-demand',
       label: 'Predicted Demand',
       value: forecastDemand == null ? '-' : `${Number(forecastDemand).toFixed(1)} MGD`,
-      forecast: '30-day outlook',
-      tooltip: 'Expected water demand over the coming forecast range.',
-      trend: { direction: 'up', label: 'Rising' },
-      status: { label: 'Projected', tone: 'accent' },
-      sparkline: sparkAround(forecastDemand ?? 72, 17),
+      forecast: forecastDemand == null ? 'Awaiting forecast feed' : 'End of forecast range',
+      tooltip: 'Expected water demand at the end of the forecast range returned by the demand model.',
+      trend: demandTrend,
+      status: { label: forecastDemand == null ? 'Unavailable' : 'Projected', tone: 'accent' },
+      sparkline: demandSparkline,
     },
     {
       id: 'reservoir',
       label: 'Reservoir Health',
-      value: `${avgStorage.toFixed(1)}%`,
+      value: avgStorage == null ? '-' : `${avgStorage.toFixed(1)}%`,
       forecast: `${criticalRes} critical`,
       tooltip: 'Average storage across monitored reservoirs.',
       trend: {
-        direction: avgStorage < 45 ? 'down' : 'flat',
-        label: avgStorage < 45 ? 'Declining' : 'Stable',
+        direction: avgStorage != null && avgStorage < 45 ? 'down' : 'flat',
+        label: avgStorage != null && avgStorage < 45 ? 'Declining' : 'Stable',
       },
       status: { label: resHealth, tone: riskTone(resHealth) },
-      sparkline: sparkAround(avgStorage || 50, 23),
+      sparkline: [],
     },
     {
       id: 'wsi',
-      label: 'Water Stress Score',
+      label: 'Water Stress Index',
       value: wsi == null ? '-' : wsi.toFixed(1),
       forecast: stage,
       tooltip: 'Overall pressure on the water system using demand, climate, and storage conditions.',
       trend: { direction: (wsi ?? 0) > 50 ? 'up' : 'down', label: (wsi ?? 0) > 50 ? 'Elevated' : 'Easing' },
       status: { label: String(stage).toUpperCase(), tone: riskTone(stage) },
-      sparkline: sparkAround(wsi ?? 45, 29),
+      sparkline: [],
     },
     {
       id: 'population',
       label: 'Population at Risk',
-      value: Math.round(popAtRisk).toLocaleString(),
-      forecast: 'At-risk estimate',
-      tooltip: 'Estimated population that may be affected by elevated water stress.',
-      trend: { direction: popAtRisk > 100_000 ? 'up' : 'flat', label: popAtRisk > 100_000 ? 'Elevated' : 'Contained' },
-      status: {
-        label: popAtRisk > 200_000 ? 'High' : popAtRisk > 50_000 ? 'Watch' : 'Low',
-        tone: popAtRisk > 200_000 ? 'danger' : popAtRisk > 50_000 ? 'warning' : 'success',
+      value: popAtRisk == null ? '-' : Math.round(popAtRisk).toLocaleString(),
+      forecast:
+        input.populationAtRisk != null ||
+        typeof waterStress?.context?.population_at_risk === 'number'
+          ? 'From fusion context'
+          : 'Planning heuristic',
+      tooltip:
+        input.populationAtRisk != null ||
+        typeof waterStress?.context?.population_at_risk === 'number'
+          ? 'Population exposed to elevated water stress, as reported by the fusion context.'
+          : 'No population figure was returned this cycle, so this is a disclosed planning heuristic scaled from critical reservoirs and active alerts — not a measured count.',
+      trend: {
+        direction: (popAtRisk ?? 0) > 100_000 ? 'up' : 'flat',
+        label: (popAtRisk ?? 0) > 100_000 ? 'Elevated' : 'Contained',
       },
-      sparkline: sparkAround(Math.max(1, popAtRisk / 1000), 31),
+      status: {
+        label:
+          popAtRisk == null
+            ? 'Unavailable'
+            : popAtRisk > 200_000
+              ? 'High'
+              : popAtRisk > 50_000
+                ? 'Watch'
+                : 'Low',
+        tone:
+          popAtRisk == null
+            ? 'neutral'
+            : popAtRisk > 200_000
+              ? 'danger'
+              : popAtRisk > 50_000
+                ? 'warning'
+                : 'success',
+      },
+      sparkline: [],
     },
     {
       id: 'critical-res',
@@ -279,7 +384,7 @@ export function deriveExecutiveKpis(input: {
       tooltip: 'Reservoirs currently in a critical storage state.',
       trend: { direction: criticalRes > 0 ? 'up' : 'flat', label: criticalRes > 0 ? 'Action needed' : 'Clear' },
       status: { label: criticalRes > 0 ? 'Critical' : 'Clear', tone: criticalRes > 0 ? 'danger' : 'success' },
-      sparkline: sparkAround(Math.max(1, criticalRes + 1), 37),
+      sparkline: [],
     },
     {
       id: 'leak',
@@ -292,7 +397,7 @@ export function deriveExecutiveKpis(input: {
         label: activeLeaks > 5 ? 'High' : activeLeaks > 0 ? 'Watch' : 'Low',
         tone: activeLeaks > 5 ? 'danger' : activeLeaks > 0 ? 'warning' : 'success',
       },
-      sparkline: sparkAround(Math.max(1, activeLeaks + 2), 41),
+      sparkline: [],
     },
     {
       id: 'gw',
@@ -300,12 +405,18 @@ export function deriveExecutiveKpis(input: {
       value: avgGw == null ? '-' : `${avgGw.toFixed(1)} m`,
       forecast: `${aquifers.length} aquifers`,
       tooltip: 'Average depth to groundwater across monitored aquifers.',
-      trend: { direction: 'up', label: 'Depth rising' },
+      trend:
+        avgGw == null
+          ? undefined
+          : {
+              direction: avgGw > 25 ? 'up' : 'flat',
+              label: avgGw > 25 ? 'Deep water table' : 'Within normal depth',
+            },
       status: {
         label: avgGw != null && avgGw > 25 ? 'Deep' : 'OK',
         tone: avgGw != null && avgGw > 25 ? 'warning' : 'success',
       },
-      sparkline: sparkAround(avgGw ?? 18, 43),
+      sparkline: [],
     },
     {
       id: 'weather',
@@ -323,9 +434,9 @@ export function deriveExecutiveKpis(input: {
         label: weather?.heatwave_warning ? 'Heatwave' : 'Nominal',
         tone: weather?.heatwave_warning ? 'warning' : 'success',
       },
-      sparkline: sparkAround(weather?.temperature_c ?? 30, 47),
+      sparkline: [],
     },
-  ];
+  ], input.unavailable);
 }
 
 export function deriveTimeline(input: {
@@ -387,7 +498,7 @@ export function deriveTimeline(input: {
         id: `gw-${a.id}`,
         when: '30d',
         title: `Aquifer stress · ${a.name}`,
-        detail: `${a.depthToWaterM.toFixed(1)} m depth · ${a.depletionRateMYear.toFixed(1)} m/yr drawdown`,
+        detail: `${a.depthToWaterM.toFixed(1)} m depth · ${a.depletionRateMYear.toFixed(1)} m/year depletion`,
         severity: a.depletionRateMYear >= 4 ? 'danger' : 'warning',
         category: 'Groundwater',
       });
@@ -494,21 +605,26 @@ export function chartSeriesFrom(input: {
   waterStress: WaterIntelligencePayload | null;
   /** Optional live demand series from /predict (historical + forecast). */
   demandSeries?: Array<{ label: string; value: number }>;
+  /** When false, missing feeds yield empty series instead of synthetic sparklines. */
+  allowSynthetic?: boolean;
 }) {
+  const allowSynthetic = input.allowSynthetic !== false;
   const demandBase =
     typeof input.waterStress?.demand?.daily_demand_mgd === 'number'
       ? (input.waterStress.demand.daily_demand_mgd as number)
       : typeof input.waterStress?.demand?.predicted_demand_mgd === 'number'
         ? (input.waterStress.demand.predicted_demand_mgd as number)
-        : 68;
+        : null;
 
   const demand =
     input.demandSeries && input.demandSeries.length > 0
       ? input.demandSeries
-      : sparkAround(demandBase, 5, 12).map((v, i) => ({
-          label: `D${i + 1}`,
-          value: Number(v.toFixed(1)),
-        }));
+      : allowSynthetic && demandBase != null
+        ? sparkAround(demandBase, 5, 12).map((v, i) => ({
+            label: `D${i + 1}`,
+            value: Number(v.toFixed(1)),
+          }))
+        : [];
 
   const reservoir = [...input.shortageRisks]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -538,10 +654,12 @@ export function chartSeriesFrom(input: {
             value: Number(Number(value).toFixed(1)),
           };
         })
-      : sparkAround(input.weather?.precipitation_mm ?? 5, 13, 7).map((v, i) => ({
-          label: `D${i + 1}`,
-          value: Number(v.toFixed(1)),
-        }));
+      : allowSynthetic && input.weather
+        ? sparkAround(input.weather.precipitation_mm ?? 5, 13, 7).map((v, i) => ({
+            label: `D${i + 1}`,
+            value: Number(v.toFixed(1)),
+          }))
+        : [];
 
   return { demand, reservoir, climate };
 }

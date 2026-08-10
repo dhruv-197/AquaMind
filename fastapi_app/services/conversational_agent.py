@@ -10,6 +10,8 @@ import urllib.error
 import urllib.request
 from typing import Any
 
+import asyncio
+
 MAX_MESSAGE_LENGTH = 700
 # Compress anything longer than a tight briefing.
 SUMMARIZE_CHAR_THRESHOLD = 320
@@ -100,13 +102,13 @@ class WaterCopilot:
         if lowered in GREETINGS:
             return {
                 "answer": (
-                    "Hello! I’m AquaAI. Ask me about rainfall, shortages, leaks, "
+                    "Hello! I'm AquaAI. Ask me about rainfall, shortages, leaks, "
                     "groundwater, demand, or water stress."
                 ),
                 "summarized": False,
                 "source": "local",
                 "suggestions": [
-                    "Today’s water shortage risk in Gujarat",
+                    "Today's water shortage risk in Gujarat",
                     "Rain forecast for Ahmedabad",
                     "Groundwater depletion in Delhi",
                 ],
@@ -126,8 +128,11 @@ class WaterCopilot:
                 "suggestions": [],
             }
 
-        live_context = self._live_water_context(db)
-        raw, err_kind = self._ask_gemini(question, history or [], live_context=live_context)
+        # Sync DB fusion + urllib Gemini must not block the event loop.
+        live_context = await asyncio.to_thread(self._live_water_context_isolated)
+        raw, err_kind = await asyncio.to_thread(
+            self._ask_gemini, question, history or [], live_context
+        )
         if raw is None:
             if err_kind == "rate_limit":
                 msg = (
@@ -174,6 +179,50 @@ class WaterCopilot:
 
     _last_model: str | None = None
 
+    def _live_water_context_isolated(self) -> str | None:
+        """Build live context off the request session (thread-safe).
+
+        Prefers the short-lived WSI L1 cache so chat does not re-run fusion when
+        the dashboard recently warmed ``wi:live``.
+        """
+        try:
+            from fastapi_app.core.ttl_cache import WI_TTL_SEC, wi_cache
+            from fastapi_app.database.connection import SessionLocal
+            from fastapi_app.services.model_service import model_service
+
+            cached = wi_cache.get("wi:live")
+            if cached is not None:
+                return self._format_live_context(cached)
+
+            db = SessionLocal()
+            try:
+                payload = model_service.build_water_intelligence(db)
+                wi_cache.set("wi:live", payload, WI_TTL_SEC)
+                return self._format_live_context(payload)
+            finally:
+                db.close()
+        except Exception as exc:
+            print(f"[AquaAI] live context skipped: {exc}")
+            return None
+
+    def _format_live_context(self, payload: dict[str, Any]) -> str | None:
+        wsi = payload.get("water_stress") or {}
+        drivers = wsi.get("drivers") or []
+        driver_txt = "; ".join(
+            f"{d.get('component')}={d.get('contribution')}" for d in drivers[:3]
+        )
+        climate = payload.get("climate") or {}
+        leak = payload.get("leak") or {}
+        return (
+            f"WSI={wsi.get('water_stress_index')} ({wsi.get('stage')}); "
+            f"drivers=[{driver_txt}]; "
+            f"SPI3={climate.get('spi3_proxy')}; "
+            f"temp={climate.get('temperature_c')}C; "
+            f"leak_source={leak.get('source')}; "
+            f"shortage_score={(payload.get('shortage') or {}).get('predicted_risk_score')}; "
+            f"demand_mgd={(payload.get('demand') or {}).get('forecasted_demand_mgd')}"
+        )
+
     def _live_water_context(self, db) -> str | None:
         """Compact WSI + drivers string for grounding Gemini answers."""
         if db is None:
@@ -182,22 +231,7 @@ class WaterCopilot:
             from fastapi_app.services.model_service import model_service
 
             payload = model_service.build_water_intelligence(db)
-            wsi = payload.get("water_stress") or {}
-            drivers = wsi.get("drivers") or []
-            driver_txt = "; ".join(
-                f"{d.get('component')}={d.get('contribution')}" for d in drivers[:3]
-            )
-            climate = payload.get("climate") or {}
-            leak = payload.get("leak") or {}
-            return (
-                f"WSI={wsi.get('water_stress_index')} ({wsi.get('stage')}); "
-                f"drivers=[{driver_txt}]; "
-                f"SPI3={climate.get('spi3_proxy')}; "
-                f"temp={climate.get('temperature_c')}C; "
-                f"leak_source={leak.get('source')}; "
-                f"shortage_score={(payload.get('shortage') or {}).get('predicted_risk_score')}; "
-                f"demand_mgd={(payload.get('demand') or {}).get('forecasted_demand_mgd')}"
-            )
+            return self._format_live_context(payload)
         except Exception as exc:
             print(f"[AquaAI] live context skipped: {exc}")
             return None

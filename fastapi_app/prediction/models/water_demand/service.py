@@ -66,6 +66,8 @@ class WaterDemandForecastService:
         }
 
     def metrics(self) -> dict[str, Any]:
+        from ai.evaluation import strip_filesystem_paths
+
         model = self.get_model()
         if not model.is_trained():
             return {
@@ -75,7 +77,7 @@ class WaterDemandForecastService:
             }
         return {
             "trained": True,
-            "metrics": model.last_metrics,
+            "metrics": strip_filesystem_paths(model.last_metrics or {}),
             "message": "Evaluation metrics from last train/evaluate",
         }
 

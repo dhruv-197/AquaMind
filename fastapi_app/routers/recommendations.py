@@ -1,9 +1,18 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Request, status
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Any, Optional
+
+from fastapi_app.core.ai_fallback import recommendation_fixture_result
+from fastapi_app.core.demo_mode import should_use_fixture
 from fastapi_app.core.rate_limit import limiter
 from fastapi_app.core.security import get_current_user
-from fastapi_app.database.connection import get_db
+from fastapi_app.core.ttl_cache import (
+    RECOMMENDATION_TTL_SEC,
+    cached_threaded,
+    recommendation_cache,
+    run_in_thread,
+)
+from fastapi_app.database.connection import SessionLocal, get_db
 from fastapi_app.schemas import (
     RecommendationRequest, RecommendationResponse, RecommendationData, RecommendationItem,
     AIRecommendationEngineRequest, AIRecommendationEngineResponse, AIRecommendationEngineData
@@ -11,6 +20,25 @@ from fastapi_app.schemas import (
 from fastapi_app.services.model_service import model_service
 
 router = APIRouter(tags=["Executive AI Policy Recommendations"], dependencies=[Depends(get_current_user)])
+
+
+def _synthesize_live(force_refresh: bool = False) -> dict[str, Any]:
+    """Dedicated session — safe to run off the event loop."""
+    db = SessionLocal()
+    try:
+        return model_service.synthesize_live_recommendations(db, force_refresh=force_refresh)
+    finally:
+        db.close()
+
+
+async def _cached_live_recommendations(force_refresh: bool = False) -> dict[str, Any]:
+    return await cached_threaded(
+        recommendation_cache,
+        "rec:live",
+        lambda: _synthesize_live(force_refresh=force_refresh),
+        ttl_seconds=RECOMMENDATION_TTL_SEC,
+        force_refresh=force_refresh,
+    )
 
 
 def _items_from_engine(result: dict, region_id: str) -> list[RecommendationItem]:
@@ -51,18 +79,20 @@ def _policy_from_result(result: dict) -> list[str]:
     status_code=status.HTTP_200_OK,
     summary="Live Gemini/model recommendations (cached)",
 )
+@limiter.limit("30/minute")
 async def get_recommendation(
+    request: Request,
     region_id: Optional[str] = Query("REG-1", description="Region ID filter"),
     shortage_stage: Optional[int] = Query(1, ge=0, le=3, description="Shortage stage level"),
     force_refresh: bool = Query(False, description="Bypass recommendation cache"),
-    db: Session = Depends(get_db),
+    _db: Session = Depends(get_db),
 ):
     try:
-        result = model_service.synthesize_live_recommendations(db, force_refresh=force_refresh)
-    except Exception as e:
+        result = await _cached_live_recommendations(force_refresh=force_refresh)
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Recommendation synthesis failed: {e}",
+            detail="Recommendation synthesis failed.",
         )
 
     items = _items_from_engine(result, region_id or "REG-1")
@@ -91,15 +121,20 @@ async def get_recommendation(
     status_code=status.HTTP_200_OK,
     summary="Live Gemini/model recommendations (POST)",
 )
-async def post_recommendation(payload: RecommendationRequest, db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+async def post_recommendation(
+    request: Request,
+    payload: RecommendationRequest,
+    _db: Session = Depends(get_db),
+):
     region_id = payload.region_id or "REG-1"
     force = bool(getattr(payload, "force_refresh", False))
     try:
-        result = model_service.synthesize_live_recommendations(db, force_refresh=force)
-    except Exception as e:
+        result = await _cached_live_recommendations(force_refresh=force)
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Recommendation synthesis failed: {e}",
+            detail="Recommendation synthesis failed.",
         )
 
     risk = float(
@@ -129,14 +164,16 @@ async def post_recommendation(payload: RecommendationRequest, db: Session = Depe
     status_code=status.HTTP_200_OK,
     summary="Generate AI recommendations from prediction telemetry",
 )
-async def generate_ai_recommendations(payload: AIRecommendationEngineRequest):
+@limiter.limit("20/minute")
+async def generate_ai_recommendations(request: Request, payload: AIRecommendationEngineRequest):
     try:
-        result = model_service.generate_recommendations(
-            water_shortage_prediction=payload.water_shortage_prediction,
-            leak_detection=payload.leak_detection,
-            groundwater_prediction=payload.groundwater_prediction,
-            water_demand=payload.water_demand,
-            force_refresh=bool(getattr(payload, "force_refresh", False)),
+        result = await run_in_thread(
+            model_service.generate_recommendations,
+            payload.water_shortage_prediction,
+            payload.leak_detection,
+            payload.groundwater_prediction,
+            payload.water_demand,
+            bool(getattr(payload, "force_refresh", False)),
         )
         return AIRecommendationEngineResponse(
             data=AIRecommendationEngineData(
@@ -145,13 +182,14 @@ async def generate_ai_recommendations(payload: AIRecommendationEngineRequest):
                 text_summary=result.get("text_summary", ""),
                 source=result.get("source"),
                 provider=result.get("provider"),
+                metadata=result.get("metadata"),
             )
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"AI recommendation generation failed: {str(e)}",
-        )
+            detail="AI recommendation generation failed.",
+        ) from e
 
 
 @router.get(
@@ -164,10 +202,18 @@ async def generate_ai_recommendations(payload: AIRecommendationEngineRequest):
 async def live_ai_recommendations(
     request: Request,
     force_refresh: bool = Query(False, description="Bypass cache and call Gemini again"),
-    db: Session = Depends(get_db),
+    _db: Session = Depends(get_db),
 ):
     try:
-        result = model_service.synthesize_live_recommendations(db, force_refresh=force_refresh)
+        try:
+            result = await _cached_live_recommendations(force_refresh=force_refresh)
+        except Exception:
+            # Telemetry itself could not be built (no DB, no models), so even the
+            # rules engine has nothing to work from. The report modal is waiting
+            # on this call, so in demo mode answer with the captured set.
+            if not should_use_fixture(provider_failed=True):
+                raise
+            result = recommendation_fixture_result()
         return AIRecommendationEngineResponse(
             data=AIRecommendationEngineData(
                 recommendations=result.get("recommendations", []),
@@ -176,10 +222,11 @@ async def live_ai_recommendations(
                 source=result.get("source"),
                 provider=result.get("provider"),
                 inputs=result.get("inputs"),
+                metadata=result.get("metadata"),
             )
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Live recommendation synthesis failed: {str(e)}",
-        )
+            detail="Live recommendation synthesis failed.",
+        ) from e

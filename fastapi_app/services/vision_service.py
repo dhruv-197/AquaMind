@@ -1,9 +1,16 @@
+import asyncio
 import os
 import json
 import base64
 import logging
+import time
 import httpx
-from typing import Dict, Any, Optional
+from typing import Awaitable, Callable, Dict, Any, Optional
+
+from fastapi_app.core.ai_fallback import vision_fixture_result
+from fastapi_app.core.config import get_settings
+from fastapi_app.core.data_quality import DataQuality, Method, isoformat, utc_now
+from fastapi_app.core.demo_mode import ProviderUnavailableError, should_use_fixture
 from fastapi_app.services.vlm_prompt import (
     FLOOD_VL_SYSTEM_PROMPT,
     FLOOD_VL_USER_PROMPT,
@@ -132,32 +139,42 @@ class VisionService:
                 "gemini-2.5-flash-lite",
                 "gemini-flash-latest",
             )
+
+            def _call(model_name: str) -> Optional[str]:
+                # The google-genai client is synchronous; run it off the event
+                # loop so one slow vision call cannot stall every other request.
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [
+                                {
+                                    "inline_data": {
+                                        "mime_type": mime_type,
+                                        "data": base64.b64encode(file_bytes).decode("utf-8"),
+                                    }
+                                },
+                                {"text": prompts["gemini"]},
+                            ],
+                        }
+                    ],
+                    config={"response_mime_type": "application/json"},
+                )
+                return response.text
+
             last_err: Optional[Exception] = None
             for model_name in model_candidates:
                 try:
-                    response = client.models.generate_content(
-                        model=model_name,
-                        contents=[
-                            {
-                                "role": "user",
-                                "parts": [
-                                    {
-                                        "inline_data": {
-                                            "mime_type": mime_type,
-                                            "data": base64.b64encode(file_bytes).decode("utf-8"),
-                                        }
-                                    },
-                                    {"text": prompts["gemini"]},
-                                ],
-                            }
-                        ],
-                        config={"response_mime_type": "application/json"},
-                    )
-                    text = response.text
+                    text = await asyncio.to_thread(_call, model_name)
                     if text:
                         logger.info("Gemini Vision succeeded with model=%s mode=%s", model_name, mode)
                         return self._parse_json_response(text)
                     raise ValueError(f"Empty response from {model_name}")
+                except asyncio.CancelledError:
+                    # The per-provider deadline fired. Trying the next model id
+                    # would only push the request further past its budget.
+                    raise
                 except Exception as model_err:
                     last_err = model_err
                     logger.warning("Gemini model %s failed: %s", model_name, model_err)
@@ -173,7 +190,8 @@ class VisionService:
         """Use OpenRouter Qwen2.5-VL to analyze the image."""
         prompts = self._prompts_for_mode(mode)
         data_uri = self._get_base64_data_uri(file_bytes, filename)
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        timeout = get_settings().vision_provider_timeout_seconds
+        async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={
@@ -208,7 +226,8 @@ class VisionService:
         """Use Alibaba DashScope Qwen2.5-VL to analyze the image."""
         prompts = self._prompts_for_mode(mode)
         data_uri = self._get_base64_data_uri(file_bytes, filename)
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        timeout = get_settings().vision_provider_timeout_seconds
+        async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(
                 "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
                 headers={
@@ -241,6 +260,57 @@ class VisionService:
         self.openrouter_key = os.getenv("OPENROUTER_API_KEY")
         self.gemini_key = (os.getenv("GEMINI_API_KEY") or "").strip().strip('"').strip("'")
 
+    async def _run_provider(
+        self,
+        label: str,
+        call: Callable[[], Awaitable[Dict[str, Any]]],
+        *,
+        timeout: float,
+    ) -> Dict[str, Any]:
+        """Run one provider under a hard deadline.
+
+        A hosted VLM that stops responding must not be allowed to hold the whole
+        chain open — the caller needs enough budget left to try the next one.
+        """
+        try:
+            return await asyncio.wait_for(call(), timeout=timeout)
+        except asyncio.TimeoutError as err:
+            raise TimeoutError(f"{label} exceeded its {timeout:.0f}s deadline") from err
+
+    async def _attach_segmentation(self, result: Dict[str, Any], file_bytes: bytes, mode: str) -> None:
+        """Best-effort CLIPSeg overlay. Never invalidates a successful analysis."""
+        timeout = get_settings().clipseg_timeout_seconds
+        try:
+            from fastapi_app.services.clipseg_service import segment_image
+
+            logger.info("Running CLIPSeg segmentation overlay (mode=%s)...", mode)
+            # segment_image is synchronous torch work and may load weights on
+            # first call; keep it off the event loop and under a deadline.
+            segmentation = await asyncio.wait_for(
+                asyncio.to_thread(segment_image, file_bytes, mode=mode),
+                timeout=timeout,
+            )
+            result["segmentation"] = segmentation
+            if segmentation.get("available"):
+                result["provider"] = f"{result.get('provider', 'AquaLens')} + CLIPSeg"
+                result["analysis_mode"] = "vlm+clipseg"
+        except asyncio.TimeoutError:
+            logger.warning("CLIPSeg overlay exceeded %.0fs — returning VLM analysis alone.", timeout)
+            result["segmentation"] = {
+                "available": False,
+                "error": "CLIPSeg overlay is temporarily unavailable.",
+                "classes": [],
+                "overlay_base64": None,
+            }
+        except Exception as seg_err:
+            logger.warning("CLIPSeg step skipped: %s", type(seg_err).__name__)
+            result["segmentation"] = {
+                "available": False,
+                "error": "CLIPSeg overlay is temporarily unavailable.",
+                "classes": [],
+                "overlay_base64": None,
+            }
+
     async def analyze_reservoir_image(
         self, file_bytes: bytes, filename: str, mode: str = "reservoir"
     ) -> Dict[str, Any]:
@@ -252,53 +322,92 @@ class VisionService:
           - flood — permanent water vs flood inundation guidance + exclusive masks
 
         Priority: Gemini Vision -> Qwen2.5-VL (OpenRouter) -> Qwen2.5-VL (DashScope)
+
+        Each provider gets its own deadline and the chain as a whole gets a
+        wall-clock budget, so an unreachable provider costs seconds rather than
+        minutes. If every provider fails the request raises
+        `ProviderUnavailableError` — unless demo mode authorizes the captured
+        AquaLens fixture.
         """
         mode = (mode or "reservoir").lower().strip()
         if mode not in {"reservoir", "flood"}:
             mode = "reservoir"
 
+        settings = get_settings()
         self._refresh_keys()
-        errors = []
+        errors: list[str] = []
         result: Optional[Dict[str, Any]] = None
 
+        if should_use_fixture(provider_failed=False) and mode == "reservoir":
+            logger.warning("AQUAMIND_DEMO_FORCE_FIXTURES is on — serving the AquaLens fixture.")
+            return vision_fixture_result(mode)
+
         # Gemini first — this is the configured hackathon key path
+        providers: list[tuple[str, str, Callable[[], Awaitable[Dict[str, Any]]]]] = []
         if self.gemini_key:
-            try:
-                logger.info("Analyzing with Gemini Vision API (mode=%s)...", mode)
-                result = await self._analyze_with_gemini(file_bytes, filename, mode=mode)
-                result["provider"] = "Gemini Vision"
-                result["analysis_mode"] = "vlm"
-            except Exception as e:
-                errors.append(f"Gemini Vision: {e}")
-                logger.warning(f"Gemini Vision failed: {e}")
+            providers.append(
+                (
+                    "Gemini Vision",
+                    "Gemini Vision",
+                    lambda: self._analyze_with_gemini(file_bytes, filename, mode=mode),
+                )
+            )
+        if self.openrouter_key:
+            providers.append(
+                (
+                    "OpenRouter Qwen2.5-VL",
+                    "Qwen2.5-VL (OpenRouter)",
+                    lambda: self._analyze_with_qwen_openrouter(file_bytes, filename, mode=mode),
+                )
+            )
+        if self.dashscope_key:
+            providers.append(
+                (
+                    "DashScope Qwen2.5-VL",
+                    "Qwen2.5-VL (DashScope)",
+                    lambda: self._analyze_with_qwen_dashscope(file_bytes, filename, mode=mode),
+                )
+            )
 
-        if result is None and self.openrouter_key:
+        deadline = time.monotonic() + settings.vision_total_budget_seconds
+        for label, provider_name, call in providers:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                errors.append(f"{label}: skipped, vision budget exhausted")
+                logger.warning("Vision budget exhausted before trying %s.", label)
+                break
             try:
-                logger.info("Analyzing with Qwen2.5-VL via OpenRouter (mode=%s)...", mode)
-                result = await self._analyze_with_qwen_openrouter(file_bytes, filename, mode=mode)
-                result["provider"] = "Qwen2.5-VL (OpenRouter)"
+                logger.info("Analyzing with %s (mode=%s)...", label, mode)
+                result = await self._run_provider(
+                    label,
+                    call,
+                    timeout=min(settings.vision_provider_timeout_seconds, remaining),
+                )
+                result["provider"] = provider_name
                 result["analysis_mode"] = "vlm"
+                break
             except Exception as e:
-                errors.append(f"OpenRouter Qwen2.5-VL: {e}")
-                logger.warning(f"OpenRouter Qwen2.5-VL failed: {e}")
-
-        if result is None and self.dashscope_key:
-            try:
-                logger.info("Analyzing with Qwen2.5-VL via DashScope (mode=%s)...", mode)
-                result = await self._analyze_with_qwen_dashscope(file_bytes, filename, mode=mode)
-                result["provider"] = "Qwen2.5-VL (DashScope)"
-                result["analysis_mode"] = "vlm"
-            except Exception as e:
-                errors.append(f"DashScope Qwen2.5-VL: {e}")
-                logger.warning(f"DashScope Qwen2.5-VL failed: {e}")
+                errors.append(f"{label}: {e}")
+                logger.warning("%s failed: %s", label, e)
+                result = None
 
         if result is None:
-            if not errors:
-                raise RuntimeError(
-                    "No vision AI API key configured. Set GEMINI_API_KEY in .env.local "
-                    "(Google AI Studio key usually starts with AIza...)."
+            if should_use_fixture(provider_failed=True) and mode == "reservoir":
+                logger.warning(
+                    "All vision providers unavailable (%s) — serving the AquaLens demo fixture.",
+                    "; ".join(errors) or "no provider configured",
                 )
-            raise RuntimeError(f"Vision AI failed: {'; '.join(errors)}")
+                return vision_fixture_result(mode)
+            if not providers:
+                raise ProviderUnavailableError(
+                    "AquaLens vision analysis is not configured. Set GEMINI_API_KEY "
+                    "(or an OpenRouter/DashScope key) in .env.local to enable image analysis."
+                )
+            raise ProviderUnavailableError(
+                "AquaLens could not reach any vision provider. Check network access "
+                "and provider status, then retry the upload.",
+                provider_errors=errors,
+            )
 
         result["vision_mode"] = mode
 
@@ -310,23 +419,18 @@ class VisionService:
                 result["reservoir_health"] = 0
 
         # Interpretable pixel overlay via zero-shot CLIPSeg
-        try:
-            from fastapi_app.services.clipseg_service import segment_image
+        await self._attach_segmentation(result, file_bytes, mode)
 
-            logger.info("Running CLIPSeg segmentation overlay (mode=%s)...", mode)
-            segmentation = segment_image(file_bytes, mode=mode)
-            result["segmentation"] = segmentation
-            if segmentation.get("available"):
-                result["provider"] = f"{result.get('provider', 'AquaLens')} + CLIPSeg"
-                result["analysis_mode"] = "vlm+clipseg"
-        except Exception as seg_err:
-            logger.warning("CLIPSeg step skipped: %s", seg_err)
-            result["segmentation"] = {
-                "available": False,
-                "error": str(seg_err),
-                "classes": [],
-                "overlay_base64": None,
-            }
+        # Same metadata block the fixture carries, so a client can always tell a
+        # live analysis from a captured one without inspecting field values.
+        result["metadata"] = {
+            "source": "vision_provider",
+            "method": Method.VISION_MODEL.value,
+            "data_quality": DataQuality.MEDIUM.value,
+            "confidence": result.get("confidence"),
+            "generated_at": isoformat(utc_now()),
+            "model_version": result.get("provider"),
+        }
 
         return result
 

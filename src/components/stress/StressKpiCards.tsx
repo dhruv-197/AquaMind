@@ -1,34 +1,44 @@
 import React from 'react';
-import type { StressWorkspaceData } from './types';
+import type { StressSeriesPoint, StressWorkspaceData } from './types';
 import { KpiCard } from '../ui/KpiCard';
+import { sparklineFrom } from '../ui/sparkline';
 import { riskTone } from '../../design-system/tokens';
 
 type Props = {
   summary?: StressWorkspaceData['summary'] | null;
   riskLabel?: string | null;
+  /** Fusion series backing the sparklines. Absent series means no sparkline. */
+  series?: StressSeriesPoint[] | null;
 };
 
-export const StressKpiCards: React.FC<Props> = ({ summary, riskLabel }) => {
+export const StressKpiCards: React.FC<Props> = ({ summary, riskLabel, series }) => {
   const risk = riskLabel || summary?.risk_label;
+
+  // Sparklines are drawn from the fusion series only. When the series is
+  // missing or too short the card renders without a line rather than showing
+  // a trend nobody measured.
+  const historicalSpark = sparklineFrom(series, 'historical');
+  const forecastSpark = sparklineFrom(series, 'forecast');
+  const confidenceSpark = sparklineFrom(series, 'confidence');
+
   return (
     <section className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
       <KpiCard
-        label="Water Stress Score"
+        label="Water Stress Index"
         value={summary?.current_stress == null ? '-' : summary.current_stress.toFixed(1)}
         subtitle="Baseline WSI"
         tooltip="Overall water system pressure on a 0-100 scale, combining demand, storage, and climate signals."
-        comparison="vs prior fusion cycle"
         accent="blue"
-        sparkline={[42, 44, 43, 46, 48, summary?.current_stress ?? 50]}
+        sparkline={historicalSpark}
       />
       <KpiCard
         label="Predicted stress"
         value={summary?.predicted_stress == null ? '-' : summary.predicted_stress.toFixed(1)}
         subtitle="Fused WSI 0-100"
-        tooltip="Forecasted water stress score at the end of the selected horizon."
-        status={risk ? { label: String(risk).toUpperCase(), tone: riskTone(risk) } : undefined}
+        tooltip="Forecasted Water Stress Index at the end of the selected horizon."
+        status={risk ? { label: String(risk), tone: riskTone(risk) } : undefined}
         accent="orange"
-        sparkline={[48, 50, 52, 55, 58, summary?.predicted_stress ?? 60]}
+        sparkline={forecastSpark}
       />
       <KpiCard
         label="Highest risk region"
@@ -43,7 +53,6 @@ export const StressKpiCards: React.FC<Props> = ({ summary, riskLabel }) => {
         subtitle="At-risk estimate"
         tooltip="Estimated population that may be affected by elevated water stress."
         accent="violet"
-        sparkline={[1, 1.1, 1.05, 1.2, 1.3, 1.4]}
       />
       <KpiCard
         label="Expected shortage"
@@ -59,7 +68,7 @@ export const StressKpiCards: React.FC<Props> = ({ summary, riskLabel }) => {
         tooltip="How confident the fusion model is in the combined stress forecast."
         comparison="model ensemble"
         accent="green"
-        sparkline={[0.7, 0.72, 0.75, 0.74, 0.78, summary?.confidence ?? 0.8]}
+        sparkline={confidenceSpark}
       />
     </section>
   );

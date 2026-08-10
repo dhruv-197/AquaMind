@@ -7,11 +7,13 @@ services:
       - "8000:8000"
     environment:
       AQUAMIND_ENVIRONMENT: production
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?set a long random secret in .env}
-      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/aquamind.db}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?set a long random secret (≥32 chars) in .env}
+      DATABASE_URL: ${DATABASE_URL:?set an explicit DATABASE_URL for production}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?set comma-separated origins e.g. https://app.example.com}
       AQUAMIND_SEED_DEMO_DATA: ${AQUAMIND_SEED_DEMO_DATA:-false}
+      AQUAMIND_DEMO_MODE: ${AQUAMIND_DEMO_MODE:-false}
+      AQUAMIND_MAX_JSON_BYTES: ${AQUAMIND_MAX_JSON_BYTES:-2097152}
     volumes:
       # Trained model artifacts are not baked into the image — see
       # fastapi_app/Dockerfile. Point this at a host/CI-produced ai/
@@ -19,7 +21,7 @@ services:
       - ./ai:/app/ai
       - aquamind-db:/data
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -32,8 +34,21 @@ services:
       - "3000:3000"
     environment:
       FASTAPI_INTERNAL_URL: http://fastapi:8000
+      NODE_ENV: production
     depends_on:
-      - fastapi
+      fastapi:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   aquamind-db:

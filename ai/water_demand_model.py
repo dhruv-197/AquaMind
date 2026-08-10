@@ -179,7 +179,9 @@ class WaterDemandModel:
             "model_name": "water_demand_model",
             "algorithm": "RandomForestRegressor",
             "training_data": "synthetic_municipal_demand",
+            "training_dataset": "synthetic_municipal_demand",
             "target": "Synthetic municipal daily demand (MGD) from climate/calendar process",
+            "target_unit": "MGD (million gallons per day)",
             "features": FEATURES,
             # Repo-relative, not absolute: this metadata file is committed to git,
             # and str(self.data_path) wrote the full machine path
@@ -187,15 +189,36 @@ class WaterDemandModel:
             # local directory layout to anyone reading the repo.
             "data_path": _repo_relative(self.data_path),
             "rows_total": int(len(rows)),
+            "random_seed": RANDOM_SEED,
+            "split_strategy": "random_iid_synthetic (70/15/15 with fixed seed)",
+            "split_method": "random_iid_synthetic",
+            "evaluation_scope": "synthetic_label_validation",
             "accuracy_gate_r2": ACCURACY_GATE_R2,
             "gate_passed": True,
             "metrics": metrics,
             "feature_importances": importances,
+            "baseline_comparison": {
+                "mean_baseline": {
+                    "r2": 0.0,
+                    "method": "predict training-set mean",
+                    "note": "R² of the mean predictor is 0 by definition.",
+                },
+                "model_beats_mean_baseline_r2": True,
+                "seasonal_naive": {
+                    "status": "not_applicable_iid_synthetic",
+                },
+            },
             "notes": [
                 "SYNTHETIC LABELS — not AMI meters, not CWC reservoir releases.",
                 f"Accepted only if validation and test R² ≥ {ACCURACY_GATE_R2}.",
                 "Population and industrial index still scale the climate prediction at inference.",
                 "Use for UI/demo demand scenarios; replace with metered data for operations.",
+                "Performance measures recovery of the synthetic generator, not real-world validation.",
+            ],
+            "limitations": [
+                "SYNTHETIC LABELS — evaluation is synthetic-label validation only.",
+                "Random i.i.d. split is appropriate for synthetic rows; do not claim temporal generalization.",
+                "Replace with metered AMI/SCADA demand before operational forecasting.",
             ],
             "reference_population_thousands": REFERENCE_POPULATION_THOUSANDS,
             "system_aggregation_scale": SYSTEM_AGGREGATION_SCALE,
@@ -211,6 +234,8 @@ class WaterDemandModel:
         return metadata
 
     def load_model(self):
+        if self.model is not None:
+            return self.model
         if not MODEL_PATH.exists():
             self.train()
         try:
@@ -303,9 +328,18 @@ class WaterDemandModel:
                 "Review with operations before dispatch."
             ),
             "confidence": round(confidence, 3),
-            "model_scope": "Municipal demand forecast (climate + calendar features)",
+            "model_scope": "Municipal demand forecast (synthetic-label pilot)",
             "test_mae_mgd": test_mae,
             "test_r2": test_r2,
+            "evaluation": {
+                "evaluation_scope": "synthetic_label_validation",
+                "note": (
+                    "Performance measures recovery of the synthetic generator, "
+                    "not real utility / AMI accuracy."
+                ),
+                "test_mae_mgd": test_mae,
+                "test_r2": test_r2,
+            },
         }
 
 

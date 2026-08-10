@@ -21,7 +21,7 @@ function plainReason(raw: string): string {
     /Water Stress Index is\s*([\d.]+)\s*\(([A-Z_]+)\)\s*with population impact\s*([\d,]+)\.?/i,
     (_, wsi, label, pop) => {
       const level = String(label).toLowerCase().replace(/_/g, ' ');
-      return `Water Stress Score is ${level} (about ${Math.round(Number(wsi))}), affecting roughly ${pop} people.`;
+      return `Water Stress Index is ${level} (about ${Math.round(Number(wsi))}), affecting roughly ${pop} people.`;
     },
   );
   t = t.replace(

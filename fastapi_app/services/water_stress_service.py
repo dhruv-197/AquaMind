@@ -25,7 +25,7 @@ def _clip(value: float, lo: float = 0.0, hi: float = 100.0) -> float:
 
 def _shortage_component(shortage: dict[str, Any] | None) -> tuple[float, str]:
     if not shortage:
-        return 40.0, "No shortage telemetry — neutral prior."
+        return 40.0, "No shortage telemetry - neutral prior."
     score = shortage.get("predicted_risk_score")
     if score is not None:
         return _clip(float(score)), f"Shortage risk score={round(float(score), 1)}"
@@ -42,7 +42,7 @@ def _shortage_component(shortage: dict[str, Any] | None) -> tuple[float, str]:
 
 def _groundwater_component(groundwater: dict[str, Any] | None) -> tuple[float, str]:
     if not groundwater:
-        return 35.0, "No groundwater telemetry — neutral prior."
+        return 35.0, "No groundwater telemetry - neutral prior."
     rate = float(
         groundwater.get("depletion_rate_m_year")
         or groundwater.get("drawdown_rate_m")
@@ -55,34 +55,38 @@ def _groundwater_component(groundwater: dict[str, Any] | None) -> tuple[float, s
     depth_score = _clip((min(depth, 60.0) / 60.0) * 100.0)
     score = _clip(0.65 * rate_score + 0.35 * depth_score)
     status = groundwater.get("aquifer_status") or "n/a"
-    return score, f"Drawdown={round(rate, 2)} m/yr, depth={round(depth, 1)} m ({status})"
+    return score, f"Drawdown={round(rate, 2)} m/year, depth={round(depth, 1)} m ({status})"
 
 
 def _leakage_component(leak: dict[str, Any] | None) -> tuple[float, str]:
     if not leak:
-        return 20.0, "No leak telemetry — low prior."
+        return 20.0, "No leak telemetry - low prior."
     # Demo-seeded alerts must not push WSI to Critical on their own.
     if leak.get("demo"):
         score = _clip(float(leak.get("leak_probability") or 0.12) * 100.0 * 0.35)
         return score, (
-            f"Demo leak alerts muted for WSI (P≈{round(float(leak.get('leak_probability') or 0), 2)}; "
+            f"Demo leak alerts muted for WSI (leak probability="
+            f"{round(float(leak.get('leak_probability') or 0), 2)}; "
             "upload acoustic CSV for live leak stress)"
         )
     prob = float(leak.get("leak_probability") or 0.0)
     loss = float(leak.get("estimated_water_loss_lpm") or 0.0)
     detected = bool(leak.get("is_leak_detected"))
     prob_score = _clip(prob * 100.0)
-    # 1000 L/min ≈ severe distribution loss for pilot scoring.
+    # 1000 L/min is severe distribution loss for pilot scoring.
     loss_score = _clip((loss / 1000.0) * 100.0)
     score = _clip(0.55 * prob_score + 0.45 * loss_score)
     if detected:
         score = max(score, 55.0)
-    return score, f"P(leak)={round(prob, 2)}, loss≈{round(loss, 1)} L/min"
+    return score, (
+        f"Leak probability={round(prob, 2)}, "
+        f"estimated water loss~{round(loss, 1)} L/min"
+    )
 
 
 def _demand_component(demand: dict[str, Any] | None) -> tuple[float, str]:
     if not demand:
-        return 30.0, "No demand forecast — neutral prior."
+        return 30.0, "No demand forecast - neutral prior."
     mgd = float(demand.get("forecasted_demand_mgd") or 0.0)
     surge = str(demand.get("peak_surge_risk") or "").lower()
     # Normalize municipal MGD into a soft stress curve (pilot scale ~50–150 MGD).
@@ -100,7 +104,7 @@ def _demand_component(demand: dict[str, Any] | None) -> tuple[float, str]:
 
 def _climate_component(climate: dict[str, Any] | None) -> tuple[float, str]:
     if not climate:
-        return 30.0, "No climate context — neutral prior."
+        return 30.0, "No climate context - neutral prior."
     spi = climate.get("spi3_proxy")
     if isinstance(spi, dict):
         spi_z = spi.get("spi3_proxy")
@@ -131,7 +135,7 @@ def _climate_component(climate: dict[str, Any] | None) -> tuple[float, str]:
         else:
             d_stress = d
         score = _clip(0.6 * score + 0.4 * _clip(d_stress))
-        parts.append(f"rainfall stress≈{round(d_stress, 1)}%")
+        parts.append(f"rainfall stress~{round(d_stress, 1)}%")
     heat = climate.get("heatwave_warning") or climate.get("heat_active")
     if heat:
         score = _clip(score + 10.0)

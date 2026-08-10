@@ -208,7 +208,13 @@ def test_service_integration(trained_registry: ModelRegistry):
 
     cmp = service.compare(region_id="WARD-08", horizon_days=14, max_actions=6)
     assert cmp["scenario_comparison"]["current"]["label"] == "Current Strategy"
-    assert cmp["scenario_comparison"]["optimized"]["label"] == "Optimized Strategy"
+    assert cmp["scenario_comparison"]["optimized"]["label"] == "Ranked Action Plan"
+    assert "estimated impact" in cmp["scenario_comparison"]["optimized"]["description"].lower()
+    disclaimer = (cmp["scenario_comparison"].get("disclaimer") or "").lower()
+    assert "guaranteed" in disclaimer  # appears as "not ... guaranteed"
+    assert "not a mathematically optimal" in disclaimer
+    assert "guaranteed water savings" not in disclaimer
+    assert "mathematically optimal allocation" not in disclaimer
 
 
 def test_stress_generator_emergency():

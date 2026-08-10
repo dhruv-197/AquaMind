@@ -1,8 +1,14 @@
 {
   "model_name": "water_demand_model",
+  "model_version": "pilot-synthetic-v1",
   "algorithm": "RandomForestRegressor",
+  "model_type": "RandomForestRegressor",
+  "task": "synthetic municipal daily demand regression",
   "training_data": "synthetic_municipal_demand",
+  "training_dataset": "synthetic_municipal_demand (hand-written climate/calendar generator)",
   "target": "Synthetic municipal daily demand (MGD) from climate/calendar process",
+  "target_unit": "MGD (million gallons per day)",
+  "target_definition": "Synthetic daily municipal demand label produced by the generator in ai/water_demand_model.py — not AMI meters.",
   "features": [
     "temperature_c",
     "rainfall_deficit_pct",
@@ -15,6 +21,15 @@
   ],
   "data_path": "data/synthetic/water_demand_synthetic.csv",
   "rows_total": 8000,
+  "trained_at": "pilot-artifact",
+  "code_version_note": "Trained via ai/water_demand_model.py; regenerate with py ai/train.py",
+  "random_seed": 42,
+  "split_strategy": "random_iid_synthetic (70/15/15 with fixed seed). Chronological splits apply once real AMI time series replace synthetic labels.",
+  "split_method": "random_iid_synthetic",
+  "evaluation_scope": "synthetic_label_validation",
+  "evaluation_period": {
+    "note": "Synthetic rows; no real calendar evaluation period."
+  },
   "accuracy_gate_r2": 0.8,
   "gate_passed": true,
   "metrics": {
@@ -37,6 +52,18 @@
       "n": 1200
     }
   },
+  "baseline_comparison": {
+    "mean_baseline": {
+      "r2": 0.0,
+      "method": "predict training-set mean",
+      "note": "R² of the mean predictor is 0 by definition. High model R² here measures recovery of the synthetic generator, not real utility accuracy."
+    },
+    "model_beats_mean_baseline_r2": true,
+    "seasonal_naive": {
+      "status": "not_applicable_iid_synthetic",
+      "reason": "Synthetic rows are not a real multi-year demand series."
+    }
+  },
   "feature_importances": {
     "is_heatwave": 0.4669,
     "temperature_c": 0.3095,
@@ -48,10 +75,17 @@
     "precip_mm": 0.01
   },
   "notes": [
-    "SYNTHETIC LABELS \u2014 not AMI meters, not CWC reservoir releases.",
-    "Accepted only if validation and test R\u00b2 \u2265 0.8.",
+    "SYNTHETIC LABELS — not AMI meters, not CWC reservoir releases.",
+    "Accepted only if validation and test R² ≥ 0.8.",
     "Population and industrial index still scale the climate prediction at inference.",
-    "Use for UI/demo demand scenarios; replace with metered data for operations."
+    "Use for UI/demo demand scenarios; replace with metered data for operations.",
+    "Performance measures recovery of the synthetic generator, not real-world validation."
+  ],
+  "limitations": [
+    "SYNTHETIC LABELS — evaluation is synthetic-label validation only.",
+    "Random i.i.d. split is appropriate for synthetic rows; do not claim temporal generalization.",
+    "Population and industrial index scale the climate prediction at inference.",
+    "Replace with metered AMI/SCADA demand before operational forecasting."
   ],
   "reference_population_thousands": 1000.0,
   "system_aggregation_scale": 1.0

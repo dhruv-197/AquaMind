@@ -23,7 +23,6 @@ export const ExecutiveKpis: React.FC<Props> = ({ kpis }) => (
           trend={k.trend}
           status={k.status}
           sparkline={k.sparkline}
-          comparison={k.trend?.label ? `vs prior period · ${k.trend.label}` : undefined}
           accent={ACCENTS[i % ACCENTS.length]}
         />
       ))}

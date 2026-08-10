@@ -3,6 +3,7 @@ import { Download, FileText } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { SectionTitle } from './ExecutiveKpis';
 import { loadReports } from '../../../services/telemetry';
+import type { ReportItem } from '../../../types/apiContracts';
 
 type Props = {
   onGenerateReport: () => void;
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export const ReportCenter: React.FC<Props> = ({ onGenerateReport, onExportPdf, onExportCsv }) => {
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<ReportItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -62,7 +63,7 @@ export const ReportCenter: React.FC<Props> = ({ onGenerateReport, onExportPdf, o
         ) : null}
         {reports.slice(0, 6).map((r) => (
           <article
-            key={r.id}
+            key={r.report_id || r.id}
             className="rounded-[16px] border border-[var(--am-border)] bg-[var(--am-bg-muted)]/70 p-4 transition hover:shadow-[var(--am-shadow-sm)]"
           >
             <div className="flex items-start justify-between gap-3">

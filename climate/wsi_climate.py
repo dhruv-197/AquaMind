@@ -16,7 +16,7 @@ from climate.spi_proxy import rainfall_deficit_pct, spi3_proxy
 
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
-TIMEOUT = 30.0
+TIMEOUT = float(__import__("os").getenv("AQUAMIND_OPEN_METEO_TIMEOUT_SEC", "12"))
 
 # Default basin anchor (Delhi NCT) when no reservoir coords are available.
 DEFAULT_LAT = 28.614

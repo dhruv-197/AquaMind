@@ -1,7 +1,8 @@
 # =============================================================================
 # AquaMind AI — .gitignore
-# Keeps secrets, bulky datasets, caches, and local runtime junk out of git.
-# Keep training_curves + *.metadata.json. Oversized .pkl models stay local.
+# Keeps secrets, bulky datasets, caches, scratch artifacts, and local runtime
+# junk out of git. Keep training_curves + *.metadata.json. Oversized .pkl
+# models stay local. CI workflows under .github/workflows/ are tracked.
 # =============================================================================
 
 # --- Dependencies ---
@@ -85,7 +86,7 @@ ai/.rec_cache/
 climate/.om_cache/
 
 # --- Trained model binaries (rebuild locally with: py ai/train.py) ---
-# groundwater_model.pkl alone is ~2GB and exceeds GitHub's 100MB limit.
+# groundwater_model.pkl alone exceeds GitHub's 100MB limit.
 ai/*.pkl
 
 # --- AI / FastAPI runtime scratch (metadata + training_curves stay tracked) ---
@@ -93,11 +94,20 @@ ai/__pycache__/
 ai/**/__pycache__/
 fastapi_app/**/__pycache__/
 
-# --- Uploads / temp ---
+# --- Uploads / temp / local debug scratch ---
+# .tmp-* covers the endpoint-response dumps and probe scripts written by hand
+# during debugging (.tmp-wsi.json, .tmp-scenarios.ps1, ...). Park anything you
+# want to keep in _archive/ instead of leaving it loose in the repo root.
 tmp/
 temp/
 uploads/
 *.tmp
+.tmp-*
+.tmp_*/
+*_tmp.json
+*_tmp.ps1
+.audit-*.log
+.pytest_tmp*/
 
 # --- Trained model artifacts (regenerated locally via the /train endpoints) ---
 # Whole directory ignored: the .joblib weights are bulky and the .meta.json
@@ -106,12 +116,25 @@ uploads/
 data/water_demand/artifacts/
 data/reservoir/artifacts/
 
-# --- Claude Code local config ---
-# Personal/machine-specific settings stay local; shared config (launch.json,
-# settings.json) is committed so the team gets the same dev-server setup.
+# --- Claude Code / Cursor local config ---
+# Personal/machine-specific settings stay local.
 .claude/
 .claude/settings.local.json
 .claude/*.local.json
 
-# --- GitHub local config / metadata ---
-.github/
+# --- Hackathon binaries (markdown playbooks may be tracked; decks stay local) ---
+hackathon/*.pptx
+hackathon/*.ppt
+hackathon/*.key
+
+# --- Cleanup holding pen ---
+# Scratch and duplicate files moved out of the repository root. Nothing in here
+# is referenced by the app, build, tests, Docker or CI. See _archive/README.md;
+# the whole folder is safe to delete.
+_archive/
+
+# --- Optional local planning notes (not product source) ---
+# Neither file is currently on disk and neither was ever committed.
+# Uncomment if you recreate them and prefer they stay local:
+# PROTOTYPE_IMPROVEMENT_PLAN.md
+# TECHNICAL_ROUND_PREP.md

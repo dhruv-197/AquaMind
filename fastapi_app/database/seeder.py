@@ -13,7 +13,8 @@ def seed_database(db: Session):
     Only seeds if the User table is empty (preventing duplicates).
     Always ensures a pilot consumption series exists for WSI / shortage demand.
     """
-    # 1. Check if already seeded
+    # 1. Check if already seeded — catch IntegrityError so multi-worker
+    # startups racing the empty-table check do not crash the process.
     if db.query(User).first() is not None:
         print("[Seeder] Database already seeded. Skipping core seed...")
         _ensure_consumption_series(db)
@@ -21,6 +22,19 @@ def seed_database(db: Session):
 
     print("[Seeder] Seeding database with Indian hydro-geographical data...")
 
+    try:
+        _seed_core(db)
+    except Exception as exc:
+        db.rollback()
+        # Another worker likely completed the seed first.
+        if db.query(User).first() is not None:
+            print(f"[Seeder] Concurrent seed detected ({type(exc).__name__}); continuing.")
+            _ensure_consumption_series(db)
+            return
+        raise
+
+
+def _seed_core(db: Session):
     # 2. Seed Users
     admin_user = User(
         username="Admin",

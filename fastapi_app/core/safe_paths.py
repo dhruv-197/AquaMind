@@ -39,8 +39,9 @@ def resolve_dataset_path(user_path: str) -> Path:
     try:
         resolved.relative_to(UPLOADS_DIR.resolve())
     except ValueError:
+        # Do not echo absolute server paths to callers.
         raise UnsafeDatasetPathError(
-            f"dataset_path must reference a file inside {UPLOADS_DIR} "
+            "dataset_path must reference a file inside the uploads directory "
             "(upload it via the import endpoint first, then pass its filename)."
         )
 

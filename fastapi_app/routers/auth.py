@@ -73,11 +73,12 @@ async def signup(request: Request, payload: UserSignupRequest, db: Session = Dep
         db.add(user)
         db.commit()
         db.refresh(user)
-    except Exception as e:
+    except Exception:
         db.rollback()
+        logger.exception("[Auth] signup database write failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database write failed during signup: {str(e)}"
+            detail="Account registration is temporarily unavailable. Please try again.",
         )
     
     # 4. Generate token
@@ -164,10 +165,26 @@ async def request_password_reset(request: Request, payload: RequestPasswordReset
     db.commit()
 
     # PILOT: stand-in for a real email/SMS delivery channel.
-    logger.warning(
-        "[PasswordReset] token for %s (expires in %sm): %s",
-        user.email, RESET_TOKEN_TTL_MINUTES, raw_token,
-    )
+    # Never log plaintext reset tokens outside development/demo — production
+    # must deliver them through a mail provider instead.
+    from fastapi_app.core.config import get_settings
+
+    settings = get_settings()
+    allow_token_log = settings.environment in {"development", "test", "demo"} or settings.demo_mode
+    if allow_token_log:
+        logger.warning(
+            "[PasswordReset] token for %s (expires in %sm): %s",
+            user.email,
+            RESET_TOKEN_TTL_MINUTES,
+            raw_token,
+        )
+    else:
+        logger.info(
+            "[PasswordReset] reset token issued for user_id=%s (expires in %sm); "
+            "plaintext token not logged in this environment",
+            user.id,
+            RESET_TOKEN_TTL_MINUTES,
+        )
     return generic_response
 
 
@@ -178,12 +195,15 @@ async def request_password_reset(request: Request, payload: RequestPasswordReset
 )
 @limiter.limit("10/minute")
 async def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    # Same client-facing error whether the email is unknown or the token is
+    # wrong — avoids account enumeration via this endpoint.
+    invalid_token = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Invalid or expired password reset token. Request a new one.",
+    )
     user = db.query(User).filter(User.email == payload.email).first()
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Email address not found in the system"
-        )
+        raise invalid_token
 
     token_hash = _hash_token(payload.reset_token)
     reset_row = (
@@ -197,21 +217,19 @@ async def forgot_password(request: Request, payload: ForgotPasswordRequest, db: 
         .first()
     )
     if not reset_row or reset_row.expires_at < datetime.utcnow():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Security error: Invalid or expired password reset token. Request a new one."
-        )
+        raise invalid_token
 
     try:
         user.password_hash = AuthService.hash_password(payload.new_password)
         user.updated_at = datetime.utcnow()
         reset_row.used_at = datetime.utcnow()
         db.commit()
-    except Exception as e:
+    except Exception:
         db.rollback()
+        logger.exception("[Auth] password reset database write failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database write failed during password reset: {str(e)}"
+            detail="Password reset is temporarily unavailable. Please try again.",
         )
 
     return {

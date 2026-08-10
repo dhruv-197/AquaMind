@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import socket
 import time
 import urllib.error
 import urllib.request
@@ -29,6 +30,23 @@ GEMINI_MODELS = [
     "gemini-2.0-flash",
 ]
 GEMINI_MODELS = [m for m in GEMINI_MODELS if m]
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        return float(os.getenv(name, "") or default)
+    except (TypeError, ValueError):
+        return default
+
+
+def _per_attempt_timeout() -> float:
+    """Deadline for one Gemini call. Kept small so a hung provider is survivable."""
+    return _env_float("AQUAMIND_REMOTE_AI_TIMEOUT_SEC", 10.0)
+
+
+def _total_budget() -> float:
+    """Wall-clock ceiling across every model attempt in a single request."""
+    return _env_float("AQUAMIND_REMOTE_AI_BUDGET_SEC", 15.0)
 
 
 def _round_num(value: Any, places: int = 1) -> float:
@@ -124,7 +142,7 @@ def _write_cache(key: str, result: dict, provider: str) -> None:
 def _rules_fallback(stats: dict, saving: str) -> dict:
     recs: list[str] = []
     days = max(1, int(stats["s_stor"] / 5) if stats["s_stor"] > 0 else 1)
-    recs.append(f"Reservoir storage ~{int(stats['s_stor'])}% — plan contingency within ~{days} days.")
+    recs.append(f"Reservoir storage ~{int(stats['s_stor'])}% - plan contingency within ~{days} days.")
     if stats["s_risk"] >= 75:
         cut = "20%"
     elif stats["s_risk"] >= 55:
@@ -223,14 +241,23 @@ class AIRecommendationEngine:
         headers = {"Content-Type": "application/json"}
         last_err: Optional[Exception] = None
 
+        # One model list, one shared wall clock. Without the budget a provider
+        # that hangs costs `timeout x len(GEMINI_MODELS)` before the caller sees
+        # the rules fallback — long enough to stall a live demo.
+        per_attempt = _per_attempt_timeout()
+        deadline = time.monotonic() + _total_budget()
+
         for model in GEMINI_MODELS:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
             url = (
                 "https://generativelanguage.googleapis.com/v1beta/models/"
                 f"{model}:generateContent?key={self.api_key}"
             )
             req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
             try:
-                with urllib.request.urlopen(req, timeout=12) as response:
+                with urllib.request.urlopen(req, timeout=min(per_attempt, remaining)) as response:
                     resp_data = json.loads(response.read().decode("utf-8"))
                 candidates = resp_data.get("candidates") or []
                 if not candidates:
@@ -249,6 +276,16 @@ class AIRecommendationEngine:
                     "text_summary": str(parsed.get("text_summary") or " ".join(recs)),
                     "provider": model,
                 }
+            except (TimeoutError, socket.timeout) as err:
+                # The endpoint is unresponsive, not the model id. Retrying the
+                # same host with a different model name just burns the budget.
+                raise TimeoutError(f"Gemini timed out after {per_attempt:.0f}s") from err
+            except urllib.error.HTTPError as err:
+                last_err = err
+                # 404/400 means "wrong model for this key" — worth trying the
+                # next id. Anything else is an account/endpoint problem.
+                if err.code not in (400, 404):
+                    break
             except Exception as err:
                 last_err = err
                 continue

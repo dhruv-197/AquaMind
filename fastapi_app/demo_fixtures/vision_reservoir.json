@@ -1,0 +1,31 @@
+{
+  "_fixture": "Stands in for a reservoir-mode AquaLens analysis when every vision-language provider is unreachable and AQUAMIND_DEMO_MODE=true. With demo mode off the request fails with a typed 503 instead. Field names mirror the VLM contract in vision_service.GEMINI_VISION_PROMPT.",
+  "reservoir_health": 54,
+  "water_spread": "Moderate",
+  "vegetation": "Medium",
+  "sedimentation": "Medium",
+  "dry_shoreline": "Visible",
+  "encroachment": "Low Risk",
+  "water_stress": "Medium",
+  "overall_risk": "Moderate",
+  "turbidity_index": 46,
+  "algae_bloom_risk": "Low",
+  "shoreline_exposure_pct": 22,
+  "confidence": 0.55,
+  "summary": "Reference reservoir scene held for offline demonstration: a partially drawn-down impoundment with a moderate water spread, a visible band of exposed bank around the waterline, and moderate sediment load giving the water a brown-green cast. Vegetation is medium density along the upper banks with limited built structures near the shoreline. This is a captured reference analysis, not an assessment of the uploaded image.",
+  "recommendations": [
+    "Re-run the scan once a vision provider is reachable so the assessment reflects the uploaded image.",
+    "Survey the exposed shoreline band before the next drawdown cycle to confirm the usable storage curve.",
+    "Sample turbidity at the intake tower while sediment load stays in the moderate range.",
+    "Track algae cover weekly through the warm season even at low current risk.",
+    "Log any new shoreline construction against the encroachment register."
+  ],
+  "segmentation": {
+    "available": false,
+    "error": "CLIPSeg overlay is not generated for fixture responses.",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "classes": [],
+    "overlay_base64": null,
+    "original_base64": null
+  }
+}

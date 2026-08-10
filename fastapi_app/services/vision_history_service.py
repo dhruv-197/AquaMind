@@ -8,7 +8,7 @@ single snapshot is far less useful than a trend.
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 from sqlalchemy import desc
@@ -17,17 +17,53 @@ from sqlalchemy.orm import Session
 from fastapi_app.database.models import VisionAnalysis
 
 NUMERIC_FIELDS = ("reservoir_health", "turbidity_index", "shoreline_exposure_pct", "confidence")
+# Collapse double-submits: identical metrics within this window reuse the prior row.
+_DEDUPE_WINDOW = timedelta(minutes=2)
 
 
 def find_previous_analysis(
-    db: Session, *, asset_label: Optional[str], vision_mode: str
+    db: Session,
+    *,
+    asset_label: Optional[str],
+    vision_mode: str,
+    user_id=None,
 ) -> Optional[VisionAnalysis]:
-    """Most recent prior scan for this asset (or, with no label, the most
-    recent scan of the same mode from any asset) to diff the new one against."""
-    query = db.query(VisionAnalysis).filter(VisionAnalysis.vision_mode == vision_mode)
-    if asset_label:
-        query = query.filter(VisionAnalysis.asset_label == asset_label)
+    """Most recent prior scan for the same user + asset + mode.
+
+    Unlabeled scans are never compared — falling back to "any recent site"
+    would treat unrelated reservoirs as the same asset.
+    """
+    label = (asset_label or "").strip()
+    if not label:
+        return None
+    query = db.query(VisionAnalysis).filter(
+        VisionAnalysis.vision_mode == vision_mode,
+        VisionAnalysis.asset_label == label,
+    )
+    if user_id is not None:
+        query = query.filter(VisionAnalysis.user_id == user_id)
     return query.order_by(desc(VisionAnalysis.created_at)).first()
+
+
+def _metrics_match(row: VisionAnalysis, result: dict[str, Any]) -> bool:
+    health = _safe_int(result.get("reservoir_health"))
+    risk = (result.get("overall_risk") or result.get("overall_flood_risk") or "") or None
+    shore = _safe_float(result.get("shoreline_exposure_pct"))
+    conf = _safe_float(result.get("confidence"))
+    if row.reservoir_health != health:
+        return False
+    row_risk = (row.overall_risk or "") or None
+    if (row_risk or "").lower() != (risk or "").lower():
+        return False
+    if shore is not None and row.shoreline_exposure_pct is not None:
+        if abs(float(row.shoreline_exposure_pct) - float(shore)) > 0.5:
+            return False
+    elif shore != row.shoreline_exposure_pct:
+        return False
+    if conf is not None and row.confidence is not None:
+        if abs(float(row.confidence) - float(conf)) > 0.02:
+            return False
+    return True
 
 
 def persist_analysis(
@@ -43,7 +79,28 @@ def persist_analysis(
     processor calls .hex on it, which raises AttributeError on a plain str
     and previously made every persisted scan silently fail (caught by the
     router's broad except, so analysis still "succeeded" but history/trend/
-    comparison never worked)."""
+    comparison never worked).
+
+    Near-identical scans within a short window (double-click / retry) reuse the
+    existing row so the timeline does not show duplicate entries.
+    """
+    recent_q = db.query(VisionAnalysis).filter(VisionAnalysis.vision_mode == vision_mode)
+    if user_id is not None:
+        recent_q = recent_q.filter(VisionAnalysis.user_id == user_id)
+    label = (asset_label or "").strip() or None
+    if label:
+        recent_q = recent_q.filter(VisionAnalysis.asset_label == label)
+    else:
+        recent_q = recent_q.filter(VisionAnalysis.asset_label.is_(None))
+    recent = recent_q.order_by(desc(VisionAnalysis.created_at)).first()
+    if recent and recent.created_at is not None:
+        created = recent.created_at
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=timezone.utc)
+        now = datetime.now(timezone.utc)
+        if now - created <= _DEDUPE_WINDOW and _metrics_match(recent, result):
+            return recent
+
     row = VisionAnalysis(
         user_id=user_id,
         asset_label=asset_label,
@@ -70,10 +127,37 @@ def persist_analysis(
     return row
 
 
-def build_comparison(previous: Optional[VisionAnalysis], current: dict[str, Any]) -> Optional[dict[str, Any]]:
+def build_comparison(
+    previous: Optional[VisionAnalysis],
+    current: dict[str, Any],
+    *,
+    asset_label: Optional[str] = None,
+    vision_mode: Optional[str] = None,
+) -> Optional[dict[str, Any]]:
     """Deltas vs the previous scan of the same asset — the "what changed" view."""
     if previous is None:
         return None
+
+    current_label = (asset_label or current.get("asset_label") or "").strip() or None
+    previous_label = (previous.asset_label or "").strip() or None
+    current_mode = (vision_mode or current.get("vision_mode") or "").strip() or None
+    previous_mode = (previous.vision_mode or "").strip() or None
+
+    # Hard guard: never present cross-asset or cross-mode diffs as same-site change.
+    if not current_label or not previous_label or current_label != previous_label:
+        return {
+            "comparable": False,
+            "warning": "Comparison skipped — previous and current scans do not share the same asset label.",
+            "trend": None,
+            "note": "Tag both scans with the same site / reservoir name to enable before/after comparison.",
+        }
+    if current_mode and previous_mode and current_mode != previous_mode:
+        return {
+            "comparable": False,
+            "warning": "Comparison skipped — scans use different AquaLens modes (reservoir vs flood).",
+            "trend": None,
+            "note": "Compare only within the same analysis mode.",
+        }
 
     def _delta(prev_val, cur_val):
         if prev_val is None or cur_val is None:
@@ -95,29 +179,82 @@ def build_comparison(previous: Optional[VisionAnalysis], current: dict[str, Any]
             trend = "degrading"
 
     return {
+        "comparable": True,
         "previous_analyzed_at": previous.created_at.isoformat() if previous.created_at else None,
+        "previous_confidence": previous.confidence,
         "previous_reservoir_health": previous.reservoir_health,
         "reservoir_health_delta": health_delta,
         "turbidity_index_delta": turbidity_delta,
         "shoreline_exposure_pct_delta": shoreline_delta,
         "trend": trend,
+        "asset_label": previous_label,
+        "vision_mode": previous_mode,
         "note": (
             f"Compared against the previous scan on "
             f"{previous.created_at.strftime('%Y-%m-%d') if previous.created_at else 'an earlier date'}"
-            + (f" for '{previous.asset_label}'." if previous.asset_label else " (no asset label set — compared against the most recent scan of any site).")
+            f" for '{previous_label}'."
         ),
     }
 
 
 def list_history(
-    db: Session, *, asset_label: Optional[str] = None, vision_mode: Optional[str] = None, limit: int = 20
+    db: Session,
+    *,
+    asset_label: Optional[str] = None,
+    vision_mode: Optional[str] = None,
+    user_id=None,
+    limit: int = 20,
 ) -> list[VisionAnalysis]:
     query = db.query(VisionAnalysis)
+    if user_id is not None:
+        query = query.filter(VisionAnalysis.user_id == user_id)
     if asset_label:
         query = query.filter(VisionAnalysis.asset_label == asset_label)
     if vision_mode:
         query = query.filter(VisionAnalysis.vision_mode == vision_mode)
-    return query.order_by(desc(VisionAnalysis.created_at)).limit(min(limit, 100)).all()
+    # Over-fetch then collapse near-identical rows so the API timeline stays accurate
+    # even for rows already written by older double-submits.
+    raw = query.order_by(desc(VisionAnalysis.created_at)).limit(min(limit * 3, 100)).all()
+    out: list[VisionAnalysis] = []
+    seen: set[str] = set()
+    for row in raw:
+        minute = row.created_at.strftime("%Y-%m-%dT%H:%M") if row.created_at else ""
+        key = "|".join(
+            [
+                row.vision_mode or "",
+                row.asset_label or "",
+                minute,
+                str(row.reservoir_health if row.reservoir_health is not None else ""),
+                (row.overall_risk or "").lower(),
+                str(round(float(row.shoreline_exposure_pct), 0) if row.shoreline_exposure_pct is not None else ""),
+                str(round(float(row.confidence), 2) if row.confidence is not None else ""),
+            ]
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(row)
+        if len(out) >= min(limit, 100):
+            break
+    return out
+
+
+def count_history(
+    db: Session,
+    *,
+    asset_label: Optional[str] = None,
+    vision_mode: Optional[str] = None,
+    user_id=None,
+) -> int:
+    """Cheap COUNT for trend badges — avoids loading up to 100 ORM rows."""
+    query = db.query(VisionAnalysis)
+    if user_id is not None:
+        query = query.filter(VisionAnalysis.user_id == user_id)
+    if asset_label:
+        query = query.filter(VisionAnalysis.asset_label == asset_label)
+    if vision_mode:
+        query = query.filter(VisionAnalysis.vision_mode == vision_mode)
+    return int(query.count())
 
 
 def _safe_int(value: Any) -> Optional[int]:

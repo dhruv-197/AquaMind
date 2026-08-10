@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Lightbulb, X, Check, Copy, Download, ShieldCheck, AlertTriangle, Radio } from 'lucide-react';
+import type { ExecutiveBriefing } from '../../types/apiContracts';
 
 interface AIExecutiveReportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  reportData: any;
+  reportData: ExecutiveBriefing | null;
   isLoading: boolean;
   onRegenerate: () => void;
 }
@@ -64,7 +65,7 @@ export const AIExecutiveReportModal: React.FC<AIExecutiveReportModalProps> = ({
                 <Lightbulb className="w-5 h-5 text-cyan-400" />
               </div>
               <p className="text-cyan-300 animate-pulse text-[14px]">
-                Preparing your executive briefing…
+                Preparing your executive briefing...
               </p>
             </div>
           ) : reportData ? (

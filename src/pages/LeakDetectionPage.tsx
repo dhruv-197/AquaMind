@@ -123,7 +123,7 @@ export const LeakDetectionPage: React.FC = () => {
     { id: 'wave', label: 'Waveform' },
     { id: 'fft', label: 'FFT Spectrum' },
     { id: 'pred', label: 'Prediction' },
-    { id: 'prob', label: 'Probability' },
+    { id: 'prob', label: 'Leak probability' },
     { id: 'sev', label: 'Severity' },
     { id: 'act', label: 'Recommended action' },
   ];
@@ -358,7 +358,7 @@ export const LeakDetectionPage: React.FC = () => {
 
             <article className="am-soft-card p-5">
               <p className="text-[14px] font-semibold uppercase tracking-wide text-[var(--am-text-tertiary)]">
-                4 · Probability
+                4 · Leak probability
               </p>
               <p className="mt-3 text-[32px] font-semibold tabular-nums tracking-tight text-[var(--am-text)]">
                 {(result.leak_probability * 100).toFixed(1)}%

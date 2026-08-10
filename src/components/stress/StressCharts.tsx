@@ -113,7 +113,7 @@ export const StressCharts: React.FC<Props> = ({
   if (loading) {
     return (
       <div className="flex h-[420px] items-center justify-center rounded-xl border border-slate-200 bg-white text-[15px] text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-950">
-        Generating stress forecast…
+        Generating stress forecast...
       </div>
     );
   }
@@ -127,7 +127,7 @@ export const StressCharts: React.FC<Props> = ({
         <p className="mt-0.5 text-[14px] text-slate-500">
           {showScenarioCompare
             ? 'Solid = scenario forecast · Dashed = baseline forecast'
-            : 'Water Stress Score with prediction range'}
+            : 'Water Stress Index with prediction range'}
         </p>
         <div className="mt-3 h-[320px] w-full">
           {!series.length ? (

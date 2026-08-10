@@ -1,4 +1,8 @@
-import { apiGet, apiPost } from './apiClient';
+import type {
+  RecommendationData,
+  ReportListData,
+} from '../types/apiContracts';
+import { apiGet, apiPost, type ApiRequestInit } from './apiClient';
 
 export const fetchJson = apiGet;
 export const postJson = apiPost;
@@ -73,79 +77,99 @@ export type ApiWeather = {
   forecast_5_day?: Array<Record<string, unknown>>;
 };
 
-export async function loadSensors(): Promise<ApiSensor[]> {
-  const body = await fetchJson<{ success: boolean; sensors?: ApiSensor[] }>('/telemetry/sensors');
+export async function loadSensors(init?: ApiRequestInit): Promise<ApiSensor[]> {
+  const body = await fetchJson<{ success: boolean; sensors?: ApiSensor[] }>('/telemetry/sensors', init);
   return body.sensors || [];
 }
 
-export async function loadAlerts(): Promise<ApiAlert[]> {
-  const body = await fetchJson<{ success: boolean; alerts?: ApiAlert[] }>('/analytics/leakages');
+export async function loadAlerts(init?: ApiRequestInit): Promise<ApiAlert[]> {
+  const body = await fetchJson<{ success: boolean; alerts?: ApiAlert[] }>('/analytics/leakages', init);
   return body.alerts || [];
 }
 
-export async function loadShortageRisks(): Promise<ApiShortageRisk[]> {
-  const body = await fetchJson<{ success: boolean; risks?: ApiShortageRisk[] }>('/analytics/shortage-risks');
+export async function loadShortageRisks(init?: ApiRequestInit): Promise<ApiShortageRisk[]> {
+  const body = await fetchJson<{ success: boolean; risks?: ApiShortageRisk[] }>(
+    '/analytics/shortage-risks',
+    init
+  );
   return body.risks || [];
 }
 
-export async function loadGroundwater(): Promise<ApiAquifer[]> {
-  const body = await fetchJson<{ success: boolean; aquifers?: ApiAquifer[] }>('/analytics/groundwater');
+export async function loadGroundwater(init?: ApiRequestInit): Promise<ApiAquifer[]> {
+  const body = await fetchJson<{ success: boolean; aquifers?: ApiAquifer[] }>(
+    '/analytics/groundwater',
+    init
+  );
   return body.aquifers || [];
 }
 
-export async function loadWeather(): Promise<ApiWeather | null> {
-  const body = await fetchJson<{ success: boolean; data?: ApiWeather }>('/weather');
+export async function loadWeather(init?: ApiRequestInit): Promise<ApiWeather | null> {
+  const body = await fetchJson<{ success: boolean; data?: ApiWeather }>('/weather', init);
   return body.data || null;
 }
 
-export async function loadReports() {
-  const body = await fetchJson<{ success: boolean; data?: any }>('/reports');
+export async function loadReports(init?: ApiRequestInit): Promise<ReportListData> {
+  const body = await fetchJson<{ success: boolean; data?: ReportListData }>('/reports', init);
   return body.data || { total_reports: 0, reports: [] };
 }
 
-export async function loadRecommendations(regionId = 'REG-1', forceRefresh = false) {
+export async function loadRecommendations(
+  regionId = 'REG-1',
+  forceRefresh = false,
+  init?: ApiRequestInit
+): Promise<RecommendationData> {
   const qs = new URLSearchParams({
     region_id: regionId,
     force_refresh: forceRefresh ? 'true' : 'false',
   });
-  const body = await fetchJson<{ success: boolean; data?: any }>(`/recommendation?${qs.toString()}`);
+  const body = await fetchJson<{ success: boolean; data?: RecommendationData }>(
+    `/recommendation?${qs.toString()}`,
+    init
+  );
   return body.data || { recommendations: [], overall_health_index: null };
 }
 
 /** Composite Water Stress Index component (auditable weight + contribution). */
-export type WaterStressComponent = {
-  score: number;
-  weight: number;
-  contribution: number;
-  detail: string;
-};
+export type WaterStressComponent = import('../types/apiContracts').WaterStressComponent;
+export type WaterStressDriver = import('../types/apiContracts').WaterStressDriver;
+export type WaterStressIndex = import('../types/apiContracts').WaterStressIndex;
 
-export type WaterStressDriver = {
-  component: string;
-  contribution: number;
-  detail: string;
+/** How a value was produced. Mirrors fastapi_app/core/data_quality.Method. */
+export type DataMethod = import('../types/apiContracts').DataMethod;
+export type DataQualityLevel = import('../types/apiContracts').DataQualityLevel;
+export type DataFreshness = import('../types/apiContracts').DataFreshness;
+export type DataAvailability = import('../types/apiContracts').DataAvailability;
+export type DataQualityMetadata = import('../types/apiContracts').DataQualityMetadata;
+export type NormalizedMeasurement = DataQualityMetadata & {
+  value: number | null;
+  unit: string;
 };
+export type WaterIntelligenceComponent = import('../types/apiContracts').WaterIntelligenceComponent;
 
-export type WaterStressIndex = {
-  water_stress_index: number;
-  stage: string;
-  components: Record<string, WaterStressComponent>;
-  weights: Record<string, number>;
-  drivers: WaterStressDriver[];
-  data_sources: Record<string, string>;
-  method: string;
-  note: string;
-};
+export type WaterIntelligencePayload = import('../types/apiContracts').WaterIntelligenceData;
 
-export type WaterIntelligencePayload = {
-  water_stress: WaterStressIndex;
-  shortage: Record<string, unknown>;
-  leak: Record<string, unknown>;
-  groundwater: Record<string, unknown>;
-  demand: Record<string, unknown>;
-  climate: Record<string, unknown>;
-  context?: Record<string, unknown>;
-};
+/** Metadata for one component, or null when the backend did not supply it. */
+export function componentMetadata(
+  payload: WaterIntelligencePayload | null | undefined,
+  component: WaterIntelligenceComponent
+): DataQualityMetadata | null {
+  return payload?.metadata?.[component] ?? null;
+}
+
+/** Human-readable data age for Details panels. Never invents a timestamp. */
+export function formatDataAge(metadata: DataQualityMetadata | null | undefined): string {
+  const age = metadata?.data_age_seconds;
+  if (metadata == null || age == null) return 'Observation time unknown';
+  if (age < 90) return 'Updated just now';
+  if (age < 3600) return `Updated ${Math.round(age / 60)} min ago`;
+  if (age < 86400) return `Updated ${Math.round(age / 3600)} h ago`;
+  return `Updated ${Math.round(age / 86400)} d ago`;
+}
+
+/** True only when the backend positively reports the component as usable. */
+export function isComponentUsable(metadata: DataQualityMetadata | null | undefined): boolean {
+  return metadata?.availability === 'available';
+}
 
 export type WaterIntelligenceOverrides = {
   reservoir_capacity_pct?: number;
@@ -170,9 +194,10 @@ export type WaterIntelligenceOverrides = {
  * Live WSI from DB + sklearn models.
  * GET /analytics/water-stress
  */
-export async function fetchWaterStress(): Promise<WaterIntelligencePayload> {
+export async function fetchWaterStress(init?: ApiRequestInit): Promise<WaterIntelligencePayload> {
   const body = await fetchJson<{ success: boolean; data: WaterIntelligencePayload }>(
-    '/analytics/water-stress'
+    '/analytics/water-stress',
+    init
   );
   if (!body.data?.water_stress) {
     throw new Error('Water stress response missing data.water_stress');

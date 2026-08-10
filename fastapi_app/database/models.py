@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, String, Float, Boolean, DateTime, Date, ForeignKey, Text, JSON, UUID
+    Column, Integer, String, Float, Boolean, DateTime, Date, ForeignKey, Text, JSON, UUID, Index, UniqueConstraint
 )
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -103,7 +103,7 @@ class SensorData(Base):
     lng = Column(Float, nullable=False)
     address = Column(String(255), nullable=False)
     zone = Column(String(100), nullable=False, index=True)
-    last_updated = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_updated = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
     
     alerts = relationship("Alert", back_populates="sensor")
 
@@ -125,7 +125,7 @@ class Alert(Base):
     severity = Column(String(20), nullable=False, index=True)  # critical, high, medium, low, info
     status = Column(String(50), nullable=False)  # active, investigating, repaired, false_positive
     ai_diagnostics = Column(Text, nullable=False)
-    timestamp = Column(DateTime(timezone=True), default=datetime.utcnow)
+    timestamp = Column(DateTime(timezone=True), default=datetime.utcnow, index=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     
     sensor = relationship("SensorData", back_populates="alerts")
@@ -185,11 +185,14 @@ class VisionAnalysis(Base):
     one-shot image classifier with no memory between uploads."""
 
     __tablename__ = "vision_analyses"
+    __table_args__ = (
+        Index("ix_vision_asset_mode_created", "asset_label", "vision_mode", "created_at"),
+    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     asset_label = Column(String(255), nullable=True, index=True)  # optional user-supplied reservoir/site name
-    vision_mode = Column(String(20), nullable=False, default="reservoir")  # reservoir | flood
+    vision_mode = Column(String(20), nullable=False, default="reservoir", index=True)  # reservoir | flood
     provider = Column(String(100), nullable=True)
     reservoir_health = Column(Integer, nullable=True)
     water_spread = Column(String(50), nullable=True)
@@ -220,5 +223,29 @@ class AIRecommendation(Base):
     target_sector = Column(String(255), nullable=False)
     region_id = Column(String(100), nullable=False, index=True)
     overall_health_index = Column(Float, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class RecommendationFeedback(Base):
+    """Operator disposition for a recommendation (accept / reject / defer).
+
+    Idempotent per (user, recommendation_id): repeated submissions update the
+    same row. Does not claim measured water savings — only records intent.
+    """
+
+    __tablename__ = "recommendation_feedback"
+    __table_args__ = (
+        UniqueConstraint("user_id", "recommendation_id", name="uq_rec_feedback_user_rec"),
+        Index("ix_rec_feedback_rec_id", "recommendation_id"),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    recommendation_id = Column(String(120), nullable=False)
+    action = Column(String(20), nullable=False)  # accepted | rejected | deferred
+    note = Column(Text, nullable=True)
+    source = Column(String(40), nullable=True)  # decision | stress | policy
+    region_id = Column(String(100), nullable=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
