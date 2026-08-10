@@ -2,7 +2,7 @@
 # AquaMind AI — .gitignore
 # Keeps secrets, bulky datasets, caches, scratch artifacts, and local runtime
 # junk out of git. Keep training_curves + *.metadata.json. Oversized .pkl
-# models stay local. CI workflows under .github/workflows/ are tracked.
+# models stay local. GitHub Actions CI is disabled (.github/ is ignored).
 # =============================================================================
 
 # --- Dependencies ---
@@ -133,8 +133,9 @@ hackathon/*.key
 # the whole folder is safe to delete.
 _archive/
 
-# --- Optional local planning notes (not product source) ---
-# Neither file is currently on disk and neither was ever committed.
-# Uncomment if you recreate them and prefer they stay local:
-# PROTOTYPE_IMPROVEMENT_PLAN.md
-# TECHNICAL_ROUND_PREP.md
+# --- GitHub Actions / workflows ---
+# CI is intentionally not run on GitHub. Clone and run checks locally:
+#   npm run lint && npm run build
+#   py -m pytest fastapi_app/tests -q
+# Ignoring .github/ keeps any local workflow experiments from being pushed.
+.github/

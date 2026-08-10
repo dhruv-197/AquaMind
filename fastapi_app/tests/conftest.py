@@ -26,30 +26,6 @@ TINY_PNG = base64.b64decode(
 )
 
 
-@pytest.fixture(scope="session", autouse=True)
-def _ensure_schema():
-    """Create tables (and a minimal seed) before any HTTP test runs.
-
-    `TestClient(app)` does not enter the FastAPI lifespan by default, so
-    `Base.metadata.create_all` / demo seeding in `main.lifespan` never run.
-    Locally that is hidden when `aquamind.db` already exists from `uvicorn`;
-    CI uses a fresh `DATABASE_URL` (e.g. aquamind_ci.db) under
-    `AQUAMIND_ENVIRONMENT=test` and otherwise fails with `no such table: users`
-    or missing the seeded admin account used by security tests.
-    """
-    from fastapi_app.database.connection import SessionLocal, engine
-    from fastapi_app.database.models import Base
-    from fastapi_app.database.seeder import seed_database
-
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    try:
-        seed_database(db)
-    finally:
-        db.close()
-    yield
-
-
 @pytest.fixture(autouse=True)
 def _clear_process_caches():
     """L1 TTL caches must not leak hits across tests in the same process."""
@@ -81,7 +57,7 @@ def _clear_process_caches():
 
 
 @pytest.fixture(scope="session")
-def api_client(_ensure_schema) -> TestClient:
+def api_client() -> TestClient:
     """Bare (unauthenticated) TestClient — use for /auth/* and public routes.
 
     Deliberately a distinct instance from `auth_client` below (not mutated

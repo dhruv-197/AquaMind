@@ -515,14 +515,20 @@ npm run check:encoding
 | `fastapi_app/Dockerfile` | API image. `ai/*.pkl` are **not** baked in — mount them as a volume (see the header comment) |
 | `Dockerfile` | Frontend + Express proxy. A down FastAPI returns a real `502`, never mock data |
 | `docker-compose.yml` | Wires both; requires `JWT_SECRET_KEY`, `DATABASE_URL`, and `ALLOWED_ORIGINS` |
-| `.github/workflows/ci.yml` | Typechecks + builds frontend, runs backend pytest on every push/PR |
+
+GitHub Actions CI is **not** enabled for this repo (no `.github/workflows` on the remote). After clone, run checks locally:
+
+```powershell
+npm run lint
+npm run build
+py -m pytest fastapi_app/tests -q
+```
 
 ```powershell
 copy .env.example .env
 # set JWT_SECRET_KEY (≥32 chars), DATABASE_URL, ALLOWED_ORIGINS (no '*'), GEMINI_API_KEY
 docker compose up --build
 ```
-
 `AQUAMIND_ENVIRONMENT=production` (the compose default) disables demo seeding, rejects development JWT/CORS fallbacks, and refuses wildcard origins with credentials. API images run as a non-root user where configured. Schema creation still uses SQLAlchemy `create_all` — a proper migration tool (Alembic) remains a deployment follow-up before long-lived production schemas.
 
 ---
@@ -577,7 +583,7 @@ aquamind-ai/
 ├── index.html                 # Vite entry
 ├── server.ts                  # Express + /api reverse proxy
 ├── aquamind.db                # Local SQLite (gitignored; DATABASE_URL default)
-├── Dockerfile · docker-compose.yml · .github/workflows/ci.yml
+├── Dockerfile · docker-compose.yml
 └── .env.example
 ```
 
@@ -591,8 +597,8 @@ Everything else in the root is build or runtime configuration that its tooling r
 |---------|-------------------------|
 | Source, `ai/*.metadata.json`, `training_curves/` | `ai/*.pkl`, `data/*/artifacts/` |
 | `data/synthetic/`, `data/geospatial/` (small) | `Aqua Dataset/`, `data/imports/` |
-| `.env.example`, `.github/workflows/` | `.env.local`, `aquamind.db`, `.rec_cache/`, `.om_cache/` |
-| `fastapi_app/demo_fixtures/` | `.tmp-*` scratch files, `hackathon/*.pptx`, `.claude/`, `_archive/` |
+| `.env.example` | `.env.local`, `aquamind.db`, `.rec_cache/`, `.om_cache/` |
+| `fastapi_app/demo_fixtures/` | `.tmp-*` scratch files, `hackathon/*.pptx`, `.claude/`, `_archive/`, `.github/` |
 
 Metadata files write **repo-relative** paths so committed model cards never leak absolute machine paths.
 
