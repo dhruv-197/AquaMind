@@ -10,6 +10,7 @@ from climate.open_meteo_client import fetch_archive, fetch_flood, fetch_forecast
 from climate.rules import build_recommendations
 from climate.spi_proxy import rainfall_deficit_pct, spi3_proxy
 from climate.waterbalance_ponding import estimate_waterlogging
+from fastapi_app.services.groundwater_outlook import build_groundwater_outlook
 
 PRESETS: list[dict[str, Any]] = [
     {
@@ -237,6 +238,19 @@ async def analyze_location(
     drought = _drought_implication(spi, deficit, et, heat)
     recommendations = build_recommendations(climate, flood, ponding, heat)
 
+    deficit_pct = deficit.get("deficit_pct")
+    try:
+        deficit_pct_f = float(deficit_pct) if deficit_pct is not None else None
+    except (TypeError, ValueError):
+        deficit_pct_f = None
+    gw_outlook = build_groundwater_outlook(
+        lat=lat,
+        lon=lon,
+        rainfall_deficit_pct=deficit_pct_f,
+        heatwave_active=bool(heat.get("active")),
+        gw_climate_stress_0_100=drought.get("groundwater_climate_stress_0_100"),
+    )
+
     provenance = {
         "queried_at": datetime.now(timezone.utc).isoformat(),
         "location": {"lat": lat, "lon": lon, "label": label},
@@ -271,6 +285,7 @@ async def analyze_location(
             "Waterlogging depth/duration are water-balance estimates, not DEM inundation",
             "GloFAS provides river discharge risk, not flooded area polygons",
             "Climate stress scores do not retrain shortage/GW models in v1",
+            "Groundwater outlook is a climate-adjusted linear pilot — not CMIP aquifer modeling",
         ],
     }
 
@@ -279,6 +294,7 @@ async def analyze_location(
         "provenance": provenance,
         "climate": climate,
         "drought_implication": drought,
+        "groundwater_outlook": gw_outlook,
         "flood": flood,
         "waterlogging": ponding,
         "recommendations": recommendations,

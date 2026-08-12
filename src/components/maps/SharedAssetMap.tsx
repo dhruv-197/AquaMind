@@ -21,6 +21,15 @@ export type MapVariant =
   | 'climate'
   | 'satellite';
 
+/** Default opening view — Gujarat. Users can still zoom out to all of India. */
+const GUJARAT_CENTER: [number, number] = [22.67, 71.57];
+const GUJARAT_ZOOM = 7;
+const GUJARAT_BOUNDS: [[number, number], [number, number]] = [
+  [20.05, 68.15],
+  [24.75, 74.55],
+];
+const MAP_MIN_ZOOM = 4; // allows zooming out to the full India view
+
 type Props = {
   assets: WaterAsset[];
   selectedId?: string | null;
@@ -238,12 +247,15 @@ function ClusterLayer({
         })
       | undefined;
 
-    const cluster = ClusterGroup
-      ? new ClusterGroup({
+    // Stress page now shows the full national catalogue (like other modules),
+    // so clustering is required; spiderfy on zoom still lets operators pick one pin.
+    const useClustering = Boolean(ClusterGroup);
+    const cluster = useClustering
+      ? new ClusterGroup!({
           showCoverageOnHover: false,
-          maxClusterRadius: variant === 'leak' ? 36 : 48,
+          maxClusterRadius: variant === 'leak' ? 36 : variant === 'stress' ? 42 : 48,
           spiderfyOnMaxZoom: true,
-          disableClusteringAtZoom: variant === 'reservoir' ? 10 : 11,
+          disableClusteringAtZoom: variant === 'reservoir' ? 10 : variant === 'stress' ? 9 : 11,
           chunkedLoading: true,
         })
       : L.layerGroup();
@@ -254,11 +266,11 @@ function ClusterLayer({
       if (!Number.isFinite(asset.lat) || !Number.isFinite(asset.lng)) continue;
       const color = riskMarkerColor(asset.risk_level, false);
       const marker = L.circleMarker([asset.lat, asset.lng], {
-        radius: variant === 'demand' ? 9 : 7,
+        radius: variant === 'demand' ? 9 : variant === 'stress' ? 10 : 7,
         color,
         fillColor: color,
         fillOpacity: variant === 'stress' ? 0.88 : 0.78,
-        weight: 1.5,
+        weight: variant === 'stress' ? 2 : 1.5,
       });
       marker.bindPopup(buildPopupHtml(asset), {
         maxWidth: 280,
@@ -281,21 +293,20 @@ function ClusterLayer({
     markersByIdRef.current = byId;
     map.addLayer(cluster as unknown as L.Layer);
 
-    // Fit once when assets first appear. Never again on selection or data refresh
-    // (refitting after predict was resetting zoom on Stress / Reservoir / Dashboard).
+    // Open on Gujarat once when markers first appear. Do not fit to the full
+    // national asset cloud (that forced an all-India zoom). Operators can still
+    // zoom out to minZoom and pan across the rest of India.
     const shouldFit =
       !fittedKeyRef.current && Boolean(fittedKey) && currentAssets.length > 0;
     if (shouldFit) {
       fittedKeyRef.current = fittedKey;
       try {
-        const bounds = L.latLngBounds(
-          currentAssets.map((a) => [a.lat, a.lng] as [number, number]),
-        );
-        if (bounds.isValid()) {
-          map.fitBounds(bounds.pad(0.08), { maxZoom: 7, animate: false });
-        }
+        map.fitBounds(L.latLngBounds(GUJARAT_BOUNDS).pad(0.04), {
+          maxZoom: GUJARAT_ZOOM,
+          animate: false,
+        });
       } catch {
-        /* ignore */
+        map.setView(GUJARAT_CENTER, GUJARAT_ZOOM, { animate: false });
       }
     } else if (fittedKey) {
       fittedKeyRef.current = fittedKey;
@@ -403,8 +414,10 @@ export const SharedAssetMap: React.FC<Props> = ({
           </div>
         ) : (
           <MapContainer
-            center={[22.5, 78.5]}
-            zoom={5}
+            center={GUJARAT_CENTER}
+            zoom={GUJARAT_ZOOM}
+            minZoom={MAP_MIN_ZOOM}
+            maxZoom={18}
             style={{ height: '100%', width: '100%' }}
             scrollWheelZoom
             preferCanvas

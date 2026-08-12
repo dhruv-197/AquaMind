@@ -52,7 +52,19 @@ function buildClimateSummary(result: ClimateRiskResult): string[] {
     lines.push(`Waterlogging risk band: ${String(pond.duration_band).replace(/_/g, ' ')}.`);
   }
 
-  if (drought?.summary) {
+  const gw = result.groundwater_outlook;
+  if (gw?.available && gw.delta_depth_12m != null) {
+    const delta = Number(gw.delta_depth_12m);
+    lines.push(
+      delta > 0.05
+        ? `Water table may deepen by about ${delta.toFixed(1)} m over 12 months under current climate stress.`
+        : delta < -0.05
+          ? `Water table may recover by about ${Math.abs(delta).toFixed(1)} m over 12 months under current climate conditions.`
+          : `Water table depth is projected to stay near current levels over the next 12 months.`,
+    );
+  }
+
+  if (drought?.summary && lines.length < 4) {
     lines.push(drought.summary);
   }
 
@@ -269,7 +281,7 @@ export const ClimateRiskPage: React.FC = () => {
         <div className="space-y-5">
           <QuickSummary
             lines={summaryLines}
-            technicalNote="Climate summary combines rainfall archives, short-range precipitation forecasts, river discharge risk, and indicative waterlogging estimates."
+            technicalNote="Climate summary combines rainfall archives, short-range precipitation forecasts, river discharge risk, indicative waterlogging, and a pilot climate-adjusted groundwater depth outlook."
           />
           <ClimateKpiCards result={result} />
           <ClimateCharts result={result} />

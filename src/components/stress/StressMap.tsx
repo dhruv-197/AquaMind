@@ -34,13 +34,21 @@ function regionsToAssets(regions: MapRegion[]): WaterAsset[] {
 
 export const StressMap: React.FC<Props> = ({ regions, selectedId, onSelect }) => {
   const { assets: national, loading } = useWaterAssets({
-    types: ['water_stress_region', 'reservoir', 'groundwater_station'],
+    types: [
+      'reservoir',
+      'dam',
+      'groundwater_station',
+      'demand_region',
+      'water_stress_region',
+      'leak_zone',
+    ],
   });
 
   const predictionAssets = useMemo(() => regionsToAssets(regions), [regions]);
 
+  // Same national catalogue density as Dashboard / Reservoir / Demand maps.
+  // Live fusion pins overlay so predicted WSI colors stay visible.
   const merged = useMemo(() => {
-    // Prefer live prediction pins; keep national catalogue underneath
     const byId = new Map<string, WaterAsset>();
     national.forEach((a) => byId.set(a.id, a));
     predictionAssets.forEach((a) => byId.set(a.id, a));
@@ -49,6 +57,7 @@ export const StressMap: React.FC<Props> = ({ regions, selectedId, onSelect }) =>
 
   const handleSelect = useCallback(
     (asset: WaterAsset) => {
+      // Every pin id is a valid fusion target (sample region or geospatial asset).
       onSelect(asset.id);
     },
     [onSelect],
@@ -63,7 +72,7 @@ export const StressMap: React.FC<Props> = ({ regions, selectedId, onSelect }) =>
       onSelect={handleSelect}
       height={380}
       title="Water Stress Map"
-      subtitle="Stress regions · current WSI as predicted value · click to focus KPIs"
+      subtitle="National assets · click any pin to reload predicted stress and past vs forecast for that site"
       variant="stress"
     />
   );

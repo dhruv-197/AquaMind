@@ -6,6 +6,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  ComposedChart,
   Legend,
   Line,
   LineChart,
@@ -141,6 +142,8 @@ export const ClimateCharts: React.FC<{ result: ClimateRiskResult }> = ({ result 
   const precip = result.climate.precip_series_mm.slice(-60);
   const forecastP = result.climate.forecast_precip_mm || [];
   const floodSeries = ((result.flood.series as { date: string; river_discharge_m3s: number }[]) || []).slice(-30);
+  const gw = result.groundwater_outlook;
+  const gwSeries = gw?.series ?? [];
   const tip = {
     background: 'var(--am-bg-elevated)',
     border: '1px solid var(--am-border)',
@@ -240,6 +243,92 @@ export const ClimateCharts: React.FC<{ result: ClimateRiskResult }> = ({ result 
           </ResponsiveContainer>
           )}
         </div>
+      </GlassCard>
+
+      <GlassCard hoverEffect={false} className="!rounded-[16px] xl:col-span-2">
+        <h3 className="text-[17px] font-semibold text-[var(--am-text)]">Groundwater depletion</h3>
+        <p className="mb-1 text-[14px] text-[var(--am-text-tertiary)]">
+          Technical: Climate-adjusted depth-to-water projection · m below ground level — not measured
+          future groundwater levels
+        </p>
+        {gw?.station_name ? (
+          <p className="mb-3 text-[14px] text-[var(--am-text-secondary)]">
+            Anchor: {gw.station_name}
+            {gw.distance_km != null ? ` · ~${num(gw.distance_km, 0)} km` : ''}
+            {gw.climate_adjusted_rate_m_year != null
+              ? ` · climate-adjusted rate ${num(gw.climate_adjusted_rate_m_year, 2)} m/yr`
+              : ''}
+          </p>
+        ) : (
+          <p className="mb-3 text-[14px] text-[var(--am-text-secondary)]">
+            Pilot outlook from nearest aquifer rate + climate anomaly
+          </p>
+        )}
+        <div className="h-56">
+          {!gwSeries.length ? (
+            <div className="flex h-full flex-col items-center justify-center gap-1 text-center">
+              <p className="text-[16px] font-medium text-[var(--am-text)]">No groundwater outlook for this location.</p>
+              <p className="text-[15px] text-[var(--am-text-tertiary)]">
+                Analyze a location near a monitored aquifer, or check Water Stress for fusion KPIs.
+              </p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={gwSeries}>
+                <CartesianGrid stroke="var(--am-divider)" strokeDasharray="3 6" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fill: 'var(--am-text-tertiary)', fontSize: 14 }}
+                  minTickGap={28}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: 'var(--am-text-tertiary)', fontSize: 14 }}
+                  unit=" m"
+                  width={48}
+                  axisLine={false}
+                  tickLine={false}
+                  domain={['auto', 'auto']}
+                  reversed
+                />
+                <Tooltip contentStyle={tip} />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="historical"
+                  name="Past depth (m bgl)"
+                  stroke="#8E8E93"
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls={false}
+                  animationDuration={600}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="forecast"
+                  name="Climate-adjusted outlook (m bgl)"
+                  stroke="#007AFF"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  dot={false}
+                  connectNulls={false}
+                  animationDuration={600}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+        {gw?.note ? (
+          <p className="mt-3 border-t border-[var(--am-divider)] pt-3 text-[14px] leading-relaxed text-[var(--am-text-tertiary)]">
+            {gw.note}
+          </p>
+        ) : (
+          <p className="mt-3 border-t border-[var(--am-divider)] pt-3 text-[14px] leading-relaxed text-[var(--am-text-tertiary)]">
+            Pilot outlook combining measured/estimated depletion with climate anomaly — not CMIP-style
+            climate–aquifer modeling.
+          </p>
+        )}
       </GlassCard>
     </div>
   );

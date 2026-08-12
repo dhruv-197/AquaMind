@@ -11,6 +11,29 @@ export interface ClimatePreset {
   notes: string;
 }
 
+export interface GroundwaterOutlookPoint {
+  date: string;
+  historical: number | null;
+  forecast: number | null;
+}
+
+export interface GroundwaterOutlook {
+  available: boolean;
+  unit?: string;
+  station_id?: string | null;
+  station_name?: string | null;
+  distance_km?: number | null;
+  source?: string;
+  current_depth_m?: number;
+  depletion_rate_m_year?: number;
+  climate_adjusted_rate_m_year?: number;
+  depletion_trend?: string;
+  projected_depth_12m?: number;
+  delta_depth_12m?: number;
+  series: GroundwaterOutlookPoint[];
+  note?: string;
+}
+
 export interface ClimateRiskResult {
   success: boolean;
   provenance: {
@@ -36,6 +59,7 @@ export interface ClimateRiskResult {
     drivers: string[];
     summary: string;
   };
+  groundwater_outlook?: GroundwaterOutlook;
   flood: Record<string, unknown>;
   waterlogging: Record<string, unknown>;
   recommendations: {

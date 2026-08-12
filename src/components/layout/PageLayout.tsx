@@ -47,12 +47,12 @@ function profileInitials(): string {
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
   { path: '/water-stress', label: 'Water Stress', icon: CircleGauge },
-  { path: '/vision-analysis', label: 'AquaLens', icon: Satellite },
   { path: '/leak-detection', label: 'Leak Detection', icon: AudioLines },
   { path: '/demand', label: 'Demand Forecast', icon: ChartSpline },
   { path: '/reservoir-forecast', label: 'Reservoir Forecast', icon: Waves },
   { path: '/decision-intelligence', label: 'Recommended Actions', icon: ListChecks },
   { path: '/climate-risk', label: 'Climate Risk', icon: CloudRain },
+  { path: '/vision-analysis', label: 'AquaLens', icon: Satellite },
 ] as const;
 
 export const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {

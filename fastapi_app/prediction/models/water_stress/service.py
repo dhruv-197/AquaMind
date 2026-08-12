@@ -133,8 +133,11 @@ class WaterStressIntelligenceService:
 
         region = get_region(region_id, regions)
         if not region:
-            raise ValueError("No regions available in sample GIS catalog")
-
+            known = ", ".join(str(r.get("region_id")) for r in regions[:12])
+            raise ValueError(
+                f"Unknown region_id {region_id!r}. "
+                f"Select a Water Stress catalog region (e.g. {known})."
+            )
         rid = reservoir_id or scenario.get("reservoir_id") or region.get("reservoir_id")
         demand = self._fetch_demand(horizon_days)
         reservoir_cache: dict[str, dict[str, Any]] = {}
